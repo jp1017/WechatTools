@@ -75,7 +75,20 @@
     * 继承中覆盖方法需要基类函数标注 open , 可使用 final 禁止覆盖
     * 继承中覆盖属性和覆盖方法相似
     * 不存在静态方法 , 使用伴生对象处理
-*
+* 属性
+    * 存在 initalizer getter 和 setter
+    * 编译器常量使用 const 标志
+    * 使用 lateinit 标示延迟初始化属性
+* 接口
+    * 接口内可以自己实现方法 , 实现类可通过 super<T> 选择性调用父接口方法
+* 可见性修饰符
+    * 新增 internal , 默认是 public
+    * public 同 java 对所有类都可见
+    * private 同个文件内可见 如果是类内则类内可见 , java 为同个类内可见
+    * internal 同个模块内可见
+    * protected 如果是类内则类内和子类可见 , java 同个包内的类和所有子类
+* 扩展 ,
+
 
 
 
