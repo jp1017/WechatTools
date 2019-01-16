@@ -29,7 +29,7 @@ open class Constants internal constructor() {
         /**
          * 红包界面 id
          */
-        val ID_WID_CHAT_PACKET_DIALOG_BUTTON = "com.tencent.mm:id/cv0"       // 聊天页面 - 红包对话框 - 开
+        val ID_WID_CHAT_PACKET_DIALOG_BUTTON = "com.tencent.mm:id/cvO"       // 聊天页面 - 红包对话框 - 开
 
 
         /**
@@ -51,25 +51,30 @@ open class Constants internal constructor() {
         /**
          * 校验文本
          */
-        var TEXT_WX_PACKET = "[微信红包]"
+        val TEXT_WX_PACKET = "[微信红包]"
+        var USER_NAME = "yummylau头像"
 
 
         /**
          * 流程状态
          */
         var W_otherStatus = 0
-        var W_openedPacketSendStatus = 1
-        var W_openedPayStatus = 2
-        var W_intoChatDialogStatus = 3
-        var W_gotSelfPacketStatus = 4
-        var currentSelfPacketStatus = W_otherStatus;
+        var W_openedPacketSendStatus = 1            //打开红包发送界面
+        var W_openedPayStatus = 2                   //打开支付界面
+        var W_intoChatDialogStatus = 3              //聊天对话框状态
+        var W_gotSelfPacketStatus = 4               //获取自己的红包 （在聊天详情页中点击自己发送的红包）
+        var currentSelfPacketStatus = W_otherStatus
+
+        fun setCurrentSelfPacketStatusData(status: Int) {
+            currentSelfPacketStatus = status
+        }
 
         /**
          * 页面逻辑状态
          */
-        var backtoMessageListOther = 0          //首页列表
+        var backtoMessageListOther = 0          //聊天会话？？？？？
         var backtoMessageListReceiveUI = 1      //接收红包页面
-        var backtoMessageListChatDialog = 2     //聊天页面
+        var backtoMessageListChatDialog = 2     //聊天详情页面
         var backtoMessageListStatus = backtoMessageListOther
 
 
@@ -77,10 +82,5 @@ open class Constants internal constructor() {
         var isGotNotification = false               //是否获取锁屏信息
         var isClickedNewMessageList = false         //是否点击新消息列表
         var isGotPacket = false                     //是否获取红包
-
-
-        fun setCurrentSelfPacketStatusData(status: Int): Unit {
-            currentSelfPacketStatus = status
-        }
     }
 }

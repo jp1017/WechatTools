@@ -37,7 +37,7 @@ class EventScheduling {
     private var checkMsgHandler: Handler? = null
 
     /**
-     * 添加红包列表
+     * 添加红包列表,用于点击弹出红包对话框
      */
     fun addGetPacketList(nodeInfo: AccessibilityNodeInfo) {
         val delayedTime = config.getDelayedTime()
@@ -57,7 +57,7 @@ class EventScheduling {
     }
 
     /**
-     * 添加打开红包列表
+     * 添加打开红包，用于点击开打开红包
      */
     fun addOpenPacketList(nodeInfo: AccessibilityNodeInfo) {
         val delayedTime = config.getDelayedTime()
@@ -250,7 +250,7 @@ class EventScheduling {
 class HighSpeedMode {
 
     companion object {
-        private val TAG = "HiggSpeedMode"
+        private const val TAG = "HighSpeedMode"
         private var isGotPacket = false
     }
 
@@ -334,6 +334,10 @@ class HighSpeedMode {
         }
     }
 
+    /**
+     * 如果在聊天会话列表，则判断当前是否需要点击消息
+     * 如果在聊天页面，则判断是否需要获取红包
+     */
     fun dealWindowContentChanged(className: String, rootNode: AccessibilityNodeInfo) {
         Logger.i(TAG, "dealWindowContentChanged")
 
@@ -349,14 +353,14 @@ class HighSpeedMode {
             return
         }
 
-        //会话列表，点击新消息进入详情页面
-        if (clickNewMessage(rootNode)) {
+        //如果不是通过流程进入，则默认遍历点击新消息
+        if (clickMessage(rootNode)) {
             Constants.isClickedNewMessageList = true
             eventScheduling.resetIsClickedNewMessageList()
             return
         }
 
-        //聊天页面获取红包列表
+        //此时已经进入红包界面，开始获取红包
         if (getPacket(rootNode, false)) {
             Constants.isGotPacket = true
             eventScheduling.resetIsGotPacket()
@@ -367,6 +371,7 @@ class HighSpeedMode {
 
     /**
      * 获取红包列表
+     * 兼容是否抢自己的红包，兼容是否有关键字
      */
     private fun getPacket(rootNote: AccessibilityNodeInfo?, isSelfPacket: Boolean): Boolean {
         Logger.i(TAG, "getPacket")
@@ -375,66 +380,44 @@ class HighSpeedMode {
             return false
         }
         var result = false
+
+        //搜索多有聊天item
         var packetList = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_ITEM)
         if (!packetList.isEmpty()) {
             for (i in packetList.indices.reversed()) {
-                //如果存在红包
-                val packetList = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_PACKET)
-                if (!packetList.isEmpty()) {
-                    if (!isSelfPacket) {
-                        val packetTextList = packetList[i].findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_PACKET_MESSAGE)
-                        if (!packetTextList.isEmpty()) {
-                            val blackKeys = config!!.getPacketKeyWords()
-                            val packetText = packetTextList[0].text.toString()
-                            if (config!!.getIsUsedKeyWords() && isContainKeyWords(blackKeys, packetText)) {
-                                Logger.i(TAG, "getPacket ： 开启关键词过滤（$blackKeys), 当前红包包含（$packetText),已过滤")
-                                result = false || result
-                            } else {
-                                Logger.i(TAG, "getPacket ： 未开启关键词过滤, 默认支持打开")
-                                eventScheduling.addGetPacketList(packetList[i])
-                                result = true || result
-                            }
-                        }
-                    } else {
-                        val packetList = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_AVATAR)
-                        if (!packetList.isEmpty() && packetList[0].text != "yummylau头像") {
-                            val packetTextList = packetList[i].findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_PACKET_MESSAGE)
-                            if (!packetTextList.isEmpty()) {
-                                val blackKeys = config!!.getPacketKeyWords()
-                                val packetText = packetTextList[0].text.toString()
-                                if (config!!.getIsUsedKeyWords() && isContainKeyWords(blackKeys, packetText)) {
-                                    Logger.i(TAG, "getPacket ： 开启关键词过滤（$blackKeys), 当前红包包含（$packetText),已过滤")
-                                    result = false || result
-                                } else {
-                                    Logger.i(TAG, "getPacket ： 未开启关键词过滤, 默认支持打开")
-                                    eventScheduling.addGetPacketList(packetList[i])
-                                    result = true || result
-                                }
-                            }
+
+                //找出所有存在红包布局的item
+                val packetList1 = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_PACKET)
+                if (!packetList1.isEmpty()) {
+
+                    //获取当前头像
+                    val needGetSelf = config.getIsGotPacketSelf();
+                    val packetList2 = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_AVATAR)
+                    val isSelf = !packetList2.isEmpty() && packetList2[0].text == Constants.USER_NAME
+
+                    //如果不强自己
+                    if (!needGetSelf && isSelf) {
+                        Logger.i(TAG, "getPacket ： 开启不抢自己, 但是当前红包是自己的，已过滤")
+                        continue
+                    }
+
+                    //判断是否过滤
+                    val packetTextList = packetList[i].findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_PACKET_MESSAGE)
+                    if (!packetTextList.isEmpty()) {
+                        val blackKeys = config!!.getPacketKeyWords()
+                        val packetText = packetTextList[0].text.toString()
+                        if (config!!.getIsUsedKeyWords() && isContainKeyWords(blackKeys, packetText)) {
+                            Logger.i(TAG, "getPacket ： 开启关键词过滤（$blackKeys), 当前红包包含（$packetText),已过滤")
+                            continue
                         }
                     }
 
+                    Logger.i(TAG, "getPacket ： 未开启关键词过滤, 默认支持打开")
+                    eventScheduling.addGetPacketList(packetList1[i])
+                    result = true
                 }
             }
 
-        }
-        if (!packetList.isEmpty()) {
-            Logger.i(TAG, "getPacket ： 找到红包（" + packetList.size + "个）")
-            for (i in packetList.indices.reversed()) {
-                val packetTextList = packetList[i].findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_PACKET_MESSAGE)
-                if (!packetTextList.isEmpty()) {
-                    val blackKeys = config!!.getPacketKeyWords()
-                    val packetText = packetTextList[0].text.toString()
-                    if (config!!.getIsUsedKeyWords() && isContainKeyWords(blackKeys, packetText)) {
-                        Logger.i(TAG, "getPacket ： 开启关键词过滤（$blackKeys), 当前红包包含（$packetText),已过滤")
-                        result = false || result
-                    } else {
-                        Logger.i(TAG, "getPacket ： 未开启关键词过滤, 默认支持打开")
-                        eventScheduling.addGetPacketList(packetList[i])
-                        result = true || result
-                    }
-                }
-            }
         }
         Logger.i(TAG, "getPacket result = $result")
         return result
@@ -455,6 +438,8 @@ class HighSpeedMode {
         } else if (Constants.backtoMessageListStatus >= Constants.backtoMessageListReceiveUI) {
             return false
         }
+
+        //如果当前节点存在红包，则遍历寻找"开"
         var result = false
         val packetList = rootNode!!.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_PACKET_DIALOG_BUTTON)
         if (!packetList.isEmpty()) {
@@ -485,32 +470,6 @@ class HighSpeedMode {
         return result
     }
 
-
-    /**
-     * 点击消息列表
-     */
-    private fun clickNewMessage(nodeInfo: AccessibilityNodeInfo?): Boolean {
-        Logger.i(TAG, "clickNewMessage")
-        if (nodeInfo == null) {
-            Logger.i(TAG, "clickNewMessage ： 点击消息为 null")
-            return false
-        }
-        var result = false
-        val itemList = nodeInfo.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_LIST_ITEM)
-        if (!itemList.isEmpty()) {
-            for (item in itemList) {
-                val newMessageTextList = item.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_LIST_MESSAGE_TEXT)
-                if (!newMessageTextList.isEmpty()) {
-                    if (AccessibilityHelper.isRedPacketItem(newMessageTextList[0])) {
-                        item.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                        result = true
-                    }
-                }
-            }
-        }
-        Logger.i(TAG, "clickNewMessage ： 是否模拟点击进入聊天页面（$result)");
-        return result
-    }
 
     /**
      * 点击消息
