@@ -8,7 +8,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import android.os.Handler
 import android.os.IBinder
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
@@ -59,7 +58,7 @@ class WQNotificationService : NotificationListenerService() {
             Tools.wakeAndUnlock(this.application)
             Constants.isPreviouslyLockScreen = true
         }
-        if (AccessibilityHelper.openNotification(sbn, Constants.WECHAT_PACKAGE_NAME, Constants.WT_PACKET)) {
+        if (AccessibilityHelper.openNotification(sbn, Constants.PACKAFEGE_WECHAT, Constants.TEXT_WX_PACKET)) {
             // WQ.isGotNotification = true;
             /* handler.postDelayed(new Runnable() {
                 @Override
@@ -132,7 +131,6 @@ class WQAccessibilityService : AccessibilityService() {
 
 
     private var highSpeedMode: HighSpeedMode? = null
-    private var compatibleMode: CompatibleMode? = null
     private var config: Config? = null
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -158,30 +156,21 @@ class WQAccessibilityService : AccessibilityService() {
                     Tools.wakeAndUnlock(this.getApplication());
                     WQ.isPreviouslyLockScreen = true;
                 }
-                AccessibilityHelper.openNotification(accessibilityEvent, WQ.WT_PACKET);
+                AccessibilityHelper.openNotification(accessibilityEvent, WQ.TEXT_WX_PACKET);
                 WQ.isGotNotification = false;
                 break;
             }*/
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
                 Logger.i(TAG, "窗口状态改变 className = $className")
-                if (config?.getRunningMode() == Config.compatibleMode) {
-                    compatibleMode?.dealWindowStateChanged(className, rootNode)
-                } else {
-                    highSpeedMode?.dealWindowStateChanged(className, rootNode)
-                }
+                highSpeedMode?.dealWindowStateChanged(className, rootNode)
             }/*if (WQ.isPreviouslyLockScreen && WQ.currentAutoPacketStatus == WQ.W_rebackUIStatus) {
                     WQ.isPreviouslyLockScreen = false;
                     WQ.setCurrentAutoPacketStatus(WQ.W_waitStatus);
                     AccessibilityHelper.sleepAndLock(this.getApplication());
                 }*/
             AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> {
-                // Logger.i(TAG, "窗口内容变化");
-                if (config?.getRunningMode() == Config.compatibleMode) {
-                    // 联系人列表
-                    compatibleMode?.dealWindowContentChanged(rootNode)
-                } else {
-                    highSpeedMode?.dealWindowContentChanged(className, rootNode)
-                }
+                Logger.i(TAG, "窗口内容变化");
+                highSpeedMode?.dealWindowContentChanged(className, rootNode)
             }
             else -> {
             }
@@ -266,11 +255,8 @@ class WQAccessibilityService : AccessibilityService() {
         if (highSpeedMode == null) {
             highSpeedMode = HighSpeedMode()
         }
-        if (compatibleMode == null) {
-            compatibleMode = CompatibleMode()
-        }
         if (config == null) {
-            config = Config.getConfig(getService())
+            config = Config.getInstance()
         }
     }
 }

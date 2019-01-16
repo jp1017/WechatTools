@@ -24,31 +24,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun init() {
-        config = Config.getConfig(this)
+        config = Config.getInstance()
         initViewState()
         setClickListener()
     }
 
     private fun initViewState() {
-        if (config.getRunningMode() == Config.highSpeedMode) {
-            if (Tools.isSupportHighSpeedMode(this@MainActivity)) {
-                cb_highSpeedMode.isChecked = true
-            } else {
-                cb_highSpeedMode.isChecked = false
-                config.saveRunningMode(Config.compatibleMode)
-                cb_usedKeyWords.isChecked = false
-                config.saveIsUsedKeyWords(false)
-            }
-        } else {
-            cb_highSpeedMode.isChecked = false
-            cb_usedKeyWords.isChecked = false
-            config.saveIsUsedKeyWords(false)
-        }
-        cb_notification.isChecked = Tools.isServiceRunning(this, Constants.SELF_PACKAGE_NAME + "."
-                + Constants.SELFCN_NOTIFICATION)
+        cb_notification.isChecked = Tools.isServiceRunning(this, Constants.PACKAGE_SELF_APPLICATION + "."
+                + Constants.CLASS_NOTIFICATION)
 
-        cb_accessibility.isChecked = Tools.isServiceRunning(this, Constants.SELF_PACKAGE_NAME + "."
-                + Constants.SELFCN_ACCESSBILITY)
+        cb_accessibility.isChecked = Tools.isServiceRunning(this, Constants.PACKAGE_SELF_APPLICATION + "."
+                + Constants.CLASS_ACCESSBILITY)
 
         cb_getPacketSelf.isChecked = config.getIsGotPacketSelf()
         cb_usedDelayed.isChecked = config.getIsUsedDelayed()
@@ -60,22 +46,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setClickListener() {
-        cb_highSpeedMode.setOnClickListener {
-            if (cb_highSpeedMode.isChecked) {
-                if (Tools.isSupportHighSpeedMode(this@MainActivity)) {
-                    config.saveRunningMode(Config.highSpeedMode)
-                } else {
-                    cb_highSpeedMode.isChecked = false
-                    config.saveRunningMode(Config.compatibleMode)
-                    Toast.makeText(this@MainActivity, "当前微信版本不支持高速模式！",
-                            Toast.LENGTH_LONG).show()
-                }
-            } else {
-                config.saveRunningMode(Config.compatibleMode)
-                config.saveIsUsedKeyWords(false)
-                cb_usedKeyWords.isChecked = false
-            }
-        }
 
         cb_getPacketSelf.setOnClickListener {
             if (cb_getPacketSelf.isChecked) {
@@ -110,14 +80,7 @@ class MainActivity : AppCompatActivity() {
         }
         cb_usedKeyWords.setOnClickListener {
             if (cb_usedKeyWords.isChecked) {
-                if (config.getRunningMode() != Config.compatibleMode) {
-                    config.saveIsUsedKeyWords(true)
-                } else {
-                    cb_usedKeyWords.isChecked = false
-                    config.saveIsUsedKeyWords(false)
-                    Toast.makeText(this@MainActivity, "目前兼容模式下不支持关键字过滤",
-                            Toast.LENGTH_LONG).show()
-                }
+                config.saveIsUsedKeyWords(true)
             } else {
                 config.saveIsUsedKeyWords(false)
             }
@@ -132,7 +95,7 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(application, "当前安卓系统版本过低，请手动设置本应用的通知读取权限",
                         Toast.LENGTH_LONG).show()
                 cb_notification.isChecked = Tools.isServiceRunning(application,
-                        Constants.SELF_PACKAGE_NAME + "." + Constants.SELFCN_NOTIFICATION)
+                        Constants.PACKAGE_SELF_APPLICATION + "." + Constants.CLASS_NOTIFICATION)
             }
         }
 
@@ -142,9 +105,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        bt_test.setOnClickListener {
-            // WQcb_notificationService.restarcb_notificationListenerService(getApplication());
-        }
     }
 
     private fun getEditTextContent() {

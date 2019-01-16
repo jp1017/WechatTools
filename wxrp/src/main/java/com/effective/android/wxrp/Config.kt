@@ -9,20 +9,19 @@ import android.os.PowerManager
 import android.support.v4.app.NotificationManagerCompat
 import android.util.Log
 
-class Config private constructor(context: Context) {
+class Config private constructor() {
 
     private var sharedPreferences: SharedPreferences
     private var context: Context
 
     init {
-        this.context = context
+        this.context = RpApplication.getApplication()
         this.sharedPreferences = context.getSharedPreferences(WonderConfig, Context.MODE_PRIVATE)
     }
 
     companion object {
         private const val TAG = "Config"
         private const val WonderConfig = "wonderConfig"
-        private val RUNNING_MODE = "runningMode"
         private val IS_GOT_PACKET_SELF = "isGotPacketSelf"
         private val IS_USED_DELAYED = "isUsedDelayed"
         private val IS_USED_RANDOM_DELAYED = "isUsedRandomDelayed"
@@ -30,10 +29,7 @@ class Config private constructor(context: Context) {
         private val IS_USED_KEY_WORDS = "isUsedKeyWords"
         private val PACKET_KEY_WORDS = "packetKeyWords"
 
-        const val compatibleMode = 0
-        const val highSpeedMode = 0
 
-        private var runningMode: Int = highSpeedMode
         private var isGotPacketSelf: Boolean = true
         private var isUsedDelayed: Boolean = true
         private var isUsedRandomDelayed: Boolean = true
@@ -46,17 +42,17 @@ class Config private constructor(context: Context) {
         private var instance: Config? = null
 
         @Synchronized
-        fun getConfig(context: Context): Config {
-            Logger.i(TAG, "getConfig")
+        fun getInstance(): Config {
+            Logger.i(TAG, "getInstance")
             if (instance == null) {
-                instance = Config(context)
+                instance = Config()
             }
             return instance!!
         }
     }
 
     fun saveAllConfig() {
-        sharedPreferences.edit().putInt(RUNNING_MODE, runningMode)
+        sharedPreferences.edit()
                 .putBoolean(IS_GOT_PACKET_SELF, isGotPacketSelf)
                 .putBoolean(IS_USED_DELAYED, isUsedDelayed)
                 .putBoolean(IS_USED_RANDOM_DELAYED, isUsedRandomDelayed)
@@ -67,7 +63,6 @@ class Config private constructor(context: Context) {
     }
 
     fun getAllConfig() {
-        runningMode = sharedPreferences.getInt(RUNNING_MODE, runningMode)
         isGotPacketSelf = sharedPreferences.getBoolean(IS_GOT_PACKET_SELF, isGotPacketSelf)
         isUsedDelayed = sharedPreferences.getBoolean(IS_USED_DELAYED, isUsedDelayed)
         isUsedRandomDelayed = sharedPreferences.getBoolean(IS_USED_RANDOM_DELAYED, isUsedRandomDelayed)
@@ -76,7 +71,6 @@ class Config private constructor(context: Context) {
         packetKeyWords = sharedPreferences.getString(PACKET_KEY_WORDS, packetKeyWords)
     }
 
-    fun getRunningMode() = sharedPreferences.getInt(RUNNING_MODE, runningMode)
 
     fun getIsGotPacketSelf() = sharedPreferences.getBoolean(IS_GOT_PACKET_SELF, isGotPacketSelf)
 
@@ -89,8 +83,6 @@ class Config private constructor(context: Context) {
     fun getIsUsedKeyWords() = sharedPreferences.getBoolean(IS_USED_KEY_WORDS, isUsedKeyWords)
 
     fun getPacketKeyWords() = sharedPreferences.getString(PACKET_KEY_WORDS, packetKeyWords)
-
-    fun saveRunningMode(mode: Int) = sharedPreferences.edit().putInt(RUNNING_MODE, mode).apply()
 
     fun saveIsGotPacketSelf(b: Boolean) = sharedPreferences.edit().putBoolean(IS_GOT_PACKET_SELF, b).apply()
 
@@ -203,8 +195,5 @@ class Tools private constructor() {
             }
             return null
         }
-
-        fun isSupportHighSpeedMode(context: Context): Boolean =
-                false;
     }
 }
