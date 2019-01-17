@@ -258,7 +258,7 @@ class HighSpeedMode {
     private var config = Config.getInstance()
 
 
-    fun dealWindowStateChanged(className: String, rootNode: AccessibilityNodeInfo) {
+    fun dealWindowStateChanged(className: String, rootNode: AccessibilityNodeInfo?) {
         Logger.i(TAG, "dealWindowStateChanged")
         when (className) {
 
@@ -338,7 +338,7 @@ class HighSpeedMode {
      * 如果在聊天会话列表，则判断当前是否需要点击消息
      * 如果在聊天页面，则判断是否需要获取红包
      */
-    fun dealWindowContentChanged(className: String, rootNode: AccessibilityNodeInfo) {
+    fun dealWindowContentChanged(className: String, rootNode: AccessibilityNodeInfo?) {
         Logger.i(TAG, "dealWindowContentChanged")
 
         //如果当前是列表对话框，则判断当前节点是否存在红包
@@ -380,44 +380,43 @@ class HighSpeedMode {
             return false
         }
         var result = false
+        val needGetSelf = config.getIsGotPacketSelf()
+        val blackKeys = config!!.getPacketKeyWords()
+        val needUserWord = config!!.getIsUsedKeyWords()
+        val avatarList = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_AVATAR)
+        val tipList = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_PACKET_TIP)
+        val messageList = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_PACKET_MESSAGE)
 
-        //搜索多有聊天item
-        var packetList = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_ITEM)
+        //找到所有红包绩点
+        val packetList = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_PACKET)
         if (!packetList.isEmpty()) {
             for (i in packetList.indices.reversed()) {
 
-                //找出所有存在红包布局的item
-                val packetList1 = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_PACKET)
-                if (!packetList1.isEmpty()) {
+                //是否先过滤自己
+                if (!needGetSelf && !avatarList.isEmpty() && avatarList[i].text == Constants.USER_NAME) {
+                    Logger.i(TAG, "getPacket($i)  ： 开启不抢自己, 但是当前红包是自己的，已过滤")
+                    continue
+                }
 
-                    //获取当前头像
-                    val needGetSelf = config.getIsGotPacketSelf();
-                    val packetList2 = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_AVATAR)
-                    val isSelf = !packetList2.isEmpty() && packetList2[0].text == Constants.USER_NAME
-
-                    //如果不强自己
-                    if (!needGetSelf && isSelf) {
-                        Logger.i(TAG, "getPacket ： 开启不抢自己, 但是当前红包是自己的，已过滤")
+                //过滤已经抢过的
+                if (tipList.size > i) {
+                    if (!tipList.isEmpty() && tipList[i].text == Constants.TEXT_WX_GOT_PACKET) {
+                        Logger.i(TAG, "getPacket($i) ： 当前红包已经领取，已过滤")
                         continue
                     }
-
-                    //判断是否过滤
-                    val packetTextList = packetList[i].findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_PACKET_MESSAGE)
-                    if (!packetTextList.isEmpty()) {
-                        val blackKeys = config!!.getPacketKeyWords()
-                        val packetText = packetTextList[0].text.toString()
-                        if (config!!.getIsUsedKeyWords() && isContainKeyWords(blackKeys, packetText)) {
-                            Logger.i(TAG, "getPacket ： 开启关键词过滤（$blackKeys), 当前红包包含（$packetText),已过滤")
-                            continue
-                        }
-                    }
-
-                    Logger.i(TAG, "getPacket ： 未开启关键词过滤, 默认支持打开")
-                    eventScheduling.addGetPacketList(packetList1[i])
-                    result = true
                 }
-            }
 
+                //过滤关键词
+                val packetText = messageList[i].text.toString()
+                if (needUserWord && isContainKeyWords(blackKeys, packetText)) {
+                    Logger.i(TAG, "getPacket($i)  ： 开启关键词过滤（$blackKeys), 当前红包包含（$packetText),已过滤")
+                    continue
+                }
+
+                Logger.i(TAG, "getPacket($i)  ： 未开启关键词过滤, 默认支持打开")
+                eventScheduling.addGetPacketList(packetList[i])
+                result = true
+            }
         }
         Logger.i(TAG, "getPacket result = $result")
         return result
@@ -474,7 +473,7 @@ class HighSpeedMode {
     /**
      * 点击消息
      */
-    private fun clickMessage(nodeInfo: AccessibilityNodeInfo): Boolean {
+    private fun clickMessage(nodeInfo: AccessibilityNodeInfo?): Boolean {
         Logger.i(TAG, "clickMessage")
         if (nodeInfo == null) {
             Logger.i(TAG, "clickMessage ： 点击消息为 null")

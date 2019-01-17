@@ -169,7 +169,7 @@ class WQAccessibilityService : AccessibilityService() {
                     AccessibilityHelper.sleepAndLock(this.getApplication());
                 }*/
             AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> {
-                Logger.i(TAG, "窗口内容变化");
+                Logger.i(TAG, "窗口内容变化")
                 highSpeedMode?.dealWindowContentChanged(className, rootNode)
             }
             else -> {

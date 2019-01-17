@@ -29,7 +29,7 @@ open class Constants internal constructor() {
         /**
          * 红包界面 id
          */
-        val ID_WID_CHAT_PACKET_DIALOG_BUTTON = "com.tencent.mm:id/cvO"       // 聊天页面 - 红包对话框 - 开
+        val ID_WID_CHAT_PACKET_DIALOG_BUTTON = "com.tencent.mm:id/cv0"       // 聊天页面 - 红包对话框 - 开
 
 
         /**
@@ -52,6 +52,7 @@ open class Constants internal constructor() {
          * 校验文本
          */
         val TEXT_WX_PACKET = "[微信红包]"
+        val TEXT_WX_GOT_PACKET = "已领取"
         var USER_NAME = "yummylau头像"
 
 
