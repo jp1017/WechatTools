@@ -3,8 +3,8 @@ package com.effective.android.wxrp
 import android.content.Context
 
 open class Constants internal constructor() {
-    companion object {
 
+    companion object {
 
         /**
          * 包名
@@ -17,8 +17,8 @@ open class Constants internal constructor() {
         /**
          * 类名
          */
-        val CLASS_NOTIFICATION = "WQNotificationService"            // 通知监听类名
-        val CLASS_ACCESSBILITY = "WQAccessibilityService"           // 辅助服务类名
+        val CLASS_NOTIFICATION = "WXNotificationService"            // 通知监听类名
+        val CLASS_ACCESSBILITY = "WXAccessibilityService"           // 辅助服务类名
         val CLASS_LAUNCHER = "com.tencent.mm.ui.LauncherUI"         // 微信 聊天列表、聊天窗口（单聊私聊都是）
         var CLASS_PACKET_RECEIVE = "com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyNotHookReceiveUI"           // 微信 红包“開”的窗口
         val CLASS_PACKET_SEND = "com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyPrepareUI"               // 微信 自己发红包的窗口

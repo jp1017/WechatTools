@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.effective.android.wxrp"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
@@ -17,9 +17,27 @@ android {
 
     }
 
+
+    signingConfigs {
+        release {
+            storeFile file("./keystore/android.keystore")
+            storePassword "yummylau"
+            keyAlias "android.keystore"
+            keyPassword "yummylau"
+        }
+
+        debug {
+            storeFile file("./keystore/android.keystore")
+            storePassword "yummylau"
+            keyAlias "android.keystore"
+            keyPassword "yummylau"
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -35,6 +53,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.github.Cutta:TagView:1.3'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.0'
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.0.0"
 }

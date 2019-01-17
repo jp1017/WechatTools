@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="delay_action">
+        <item>无延迟</item>
+        <item>固定延迟</item>
+        <item>随机延迟</item>
+    </string-array>
+
+</resources>

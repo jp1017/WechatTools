@@ -1,4 +1,4 @@
-package com.effective.android.wxrp
+package com.effective.android.wxrp.utils
 
 import android.accessibilityservice.AccessibilityService
 import android.app.Notification
@@ -6,11 +6,11 @@ import android.app.PendingIntent
 import android.service.notification.StatusBarNotification
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import com.effective.android.wxrp.Constants
 
-class AccessibilityHelper {
-
+class AccessibilityUtil {
     companion object {
-        private const val TAG = "AccessiblilityHelper"
+        private const val TAG = "AccessibilityHelper"
 
         fun isRedPacketItem(node: AccessibilityNodeInfo) = node.text.toString().contains(Constants.TEXT_WX_PACKET)
 
@@ -94,6 +94,7 @@ class AccessibilityHelper {
         /** 返回主界面事件 */
         fun performHome(service: AccessibilityService?) {
             if (service == null) {
+                Logger.i(TAG, "WXAccessibilityService was killed!")
                 return
             }
             service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME)
@@ -102,6 +103,7 @@ class AccessibilityHelper {
         /** 返回事件 */
         internal fun performBack(service: AccessibilityService?) {
             if (service == null) {
+                Logger.i(TAG, "WXAccessibilityService was killed!")
                 return
             }
             Logger.i(TAG, "performBack")

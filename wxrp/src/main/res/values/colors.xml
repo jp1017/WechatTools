@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorPrimary">#E06057</color>
+    <color name="colorPrimaryDark">#E06057</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="text_primary_color">#242021</color>
+
+    <color name="dividerColor">#CCD7DD</color>
+    <color name="setting_title_color">#E06057</color>
+    <color name="setting_tip_color">#242021</color>
+    <color name="setting_select_stroke_color">#242021</color>
+
 </resources>

@@ -1,146 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="354dp"
-        android:layout_height="187dp"
-        android:layout_marginBottom="16dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="16dp"
-        android:text="@string/main_activity_descr"
-        android:textSize="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+    <RelativeLayout
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/tool_bar_height"
+        android:background="@color/colorPrimary"
+        android:paddingEnd="@dimen/tool_bar_padding"
+        android:paddingStart="@dimen/tool_bar_padding">
 
-    <CheckBox
-        android:id="@+id/cb_notification"
-        android:layout_width="110dp"
-        android:layout_height="40dp"
-        android:layout_marginEnd="36dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="8dp"
-        android:text="通知监听"
-        android:textSize="16dp"
-        app:layout_constraintEnd_toStartOf="@+id/guideline"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cb_accessibility" />
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="@string/app_name"
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
 
-    <CheckBox
-        android:id="@+id/cb_accessibility"
-        android:layout_width="109dp"
-        android:layout_height="40dp"
-        android:layout_marginEnd="36dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="8dp"
-        android:text="模拟操作"
-        android:textSize="16dp"
-        app:layout_constraintEnd_toStartOf="@+id/guideline"
-        app:layout_constraintLeft_toLeftOf="parent" />
+        <View
+            android:id="@+id/setting"
+            android:layout_width="@dimen/setting_icon_size"
+            android:layout_height="@dimen/setting_icon_size"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/ic_settings" />
 
-    <Button
-        android:id="@+id/bt_test"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="8dp"
-        android:text="测试按钮"
-        android:textSize="16dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cb_usedKeyWords" />
+    </RelativeLayout>
 
-    <android.support.constraint.Guideline
-        android:id="@+id/guideline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_begin="180dp" />
+    <FrameLayout
+        android:id="@+id/setting_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
-    <CheckBox
-        android:id="@+id/cb_usedDelayed"
-        android:layout_width="110dp"
-        android:layout_height="40dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="8dp"
-        android:text="固定延时"
-        android:textSize="16dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cb_notification" />
+    <!--<TextView-->
+    <!--android:id="@+id/textView"-->
+    <!--android:layout_width="354dp"-->
+    <!--android:layout_height="187dp"-->
+    <!--android:layout_marginBottom="16dp"-->
+    <!--android:layout_marginEnd="8dp"-->
+    <!--android:layout_marginStart="16dp"-->
+    <!--android:text="@string/main_activity_descr"-->
+    <!--android:textSize="16dp"-->
+    <!--app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--app:layout_constraintEnd_toEndOf="parent"-->
+    <!--app:layout_constraintHorizontal_bias="1.0"-->
+    <!--app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--app:layout_constraintStart_toStartOf="parent" />-->
 
-    <CheckBox
-        android:id="@+id/cb_usedRandomDelayed"
-        android:layout_width="110dp"
-        android:layout_height="40dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="160dp"
-        android:text="随机延时"
-        android:textSize="16dp"
-        app:layout_constraintEnd_toStartOf="@+id/et_delayedTime"
-        app:layout_constraintHorizontal_bias="0.647"
-        app:layout_constraintStart_toEndOf="@+id/cb_usedDelayed"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/et_delayedTime"
-        android:layout_width="75dp"
-        android:layout_height="40dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginTop="104dp"
-        android:ems="10"
-        android:hint="100"
-        android:inputType="number"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cb_getPacketSelf" />
-
-    <CheckBox
-        android:id="@+id/cb_getPacketSelf"
-        android:layout_width="110dp"
-        android:layout_height="40dp"
-        android:layout_marginEnd="104dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginTop="16dp"
-        android:text="抢自己发"
-        android:textSize="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <CheckBox
-        android:id="@+id/cb_usedKeyWords"
-        android:layout_width="122dp"
-        android:layout_height="40dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="8dp"
-        android:text="过滤关键字"
-        android:textSize="16dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cb_usedDelayed" />
-
-    <EditText
-        android:id="@+id/et_keyWords"
-        android:layout_width="184dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="152dp"
-        android:ems="10"
-        android:inputType="textMultiLine"
-        android:textSize="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/cb_usedKeyWords"
-        app:layout_constraintTop_toBottomOf="@+id/cb_getPacketSelf" />
-
-
-</android.support.constraint.ConstraintLayout>
+</RelativeLayout>

@@ -18,7 +18,7 @@
             android:name="aia-compat-api-min-version"
             android:value="1" />
 
-        <activity android:name=".MainActivity">
+        <activity android:name=".view.MainActivity">
             <intent-filter android:order="1">
                 <action android:name="android.intent.action.VIEW" />
 
@@ -38,11 +38,11 @@
         </activity>
 
 
-        <service android:name=".WQAccessibilityService"
+        <service android:name=".services.WXAccessibilityService"
             android:enabled="true"
             android:exported="false"
             android:priority = "1000"
-            android:label="@string/service_lable1"
+            android:label="@string/service_accessibility"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
@@ -52,7 +52,7 @@
                 android:resource="@xml/accessibilityservice" />
         </service>
 
-        <service android:name=".WQNotificationService"
+        <service android:name=".services.WXNotificationService"
             android:enabled="true"
             android:exported="true"
             android:priority = "1000"
@@ -63,7 +63,7 @@
             </intent-filter>
         </service>
 
-        <service android:name=".WQService"
+        <service android:name=".services.WXRPService"
             android:enabled="true"
             android:exported="false"
             android:priority = "1000">

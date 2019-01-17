@@ -1,8 +1,25 @@
 <resources>
-    <string name="app_name">Wxrp</string>
+    <string name="app_name">微信红包插件7.0</string>
+    <string name="setting_name">插件配置</string>
+    <string name="setting_notification_tip">读取微信通知栏消息（非必须）</string>
+    <string name="setting_accessibility_tip">开启自动模拟点击行为（必须）</string>
+    <string name="setting_get_self_tip">抢自己的红包</string>
+    <string name="setting_filter_tip">开启过滤特定关键字红包</string>
+    <string name="setting_delay_tip">开启延迟服务</string>
+
+    <string name="setting_title_necessary">必开选项</string>
+    <string name="setting_title_unnecessary">可选项</string>
+
+    <string name="tag_commit">添加过滤</string>
+    <string name="tag_empty_tip">请输入过滤内容</string>
+    <string name="add_tag_tip">请添加过滤内容</string>
+    <string name="cancel">取消</string>
+    <string name="add">添加</string>
+
+
     <string name="app_description">By Yummylau</string>
-    <string name="service_lable1">模拟时间服务</string>
-    <string name="service_lable2">通知栏监听服务</string>
+    <string name="service_accessibility">红包自动按键服务</string>
+    <string name="service_lable2">红包通知栏服务</string>
     <string name="main_activity_descr">
         注意：\n
         1、请把模拟操作和通知监听的权限打开。\n
@@ -12,4 +29,19 @@
         （2）按菜单键，在弹出的后台程序管理窗口中给本应用加锁。\n
         4、在某些机型上，偶尔会出现卡在最后拆开红包界面的现象，请等待后续版本更新。\n
     </string>
+
+    <style name="easy_dialog_style" parent="@android:style/Theme.Dialog">
+        <item name="android:windowFrame">@null</item>
+        <!-- 边框 -->
+        <item name="android:windowIsFloating">true</item>
+        <!-- 是否浮现在activity之上 -->
+        <item name="android:windowIsTranslucent">true</item>
+        <!-- 半透明 -->
+        <item name="android:windowNoTitle">true</item>
+        <!-- 无标题 -->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <!-- 背景透明 -->
+        <item name="android:backgroundDimEnabled">true</item>
+        <!-- 后面的activity变暗 -->
+    </style>
 </resources>
