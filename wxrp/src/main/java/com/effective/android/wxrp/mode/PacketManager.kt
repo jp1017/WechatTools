@@ -150,20 +150,12 @@ class PacketManager {
         if (!packetList.isEmpty()) {
             for (i in packetList.indices.reversed()) {
 
-
-                if (!pageTitle.isEmpty()) {
-                    val title = packetList[0].text.toString()
-                    if ((title.contains("(") && title.contains(")"))) {
-                        Logger.i(TAG, "getPacket($i)  ： 当前为群聊, 昵称为$title")
-                    }
-                }
-
                 //是否先过滤自己
                 if (avatarList.size > i) {
-                    if (!avatarList.isEmpty() && avatarList[i].contentDescription.contains(Config.getUserWxName())) {
+                    if (!avatarList.isEmpty() && !Config.getUserWxName().isEmpty() && avatarList[i].contentDescription.contains(Config.getUserWxName())) {
                         var isGroup = false
                         if (!pageTitle.isEmpty()) {
-                            val title = packetList[0].text.toString()
+                            val title = pageTitle[0].text.toString()
                             if ((title.contains("(") && title.contains(")"))) {
                                 Logger.i(TAG, "getPacket($i)  ： 当前会话为群聊, 昵称为$title")
                                 isGroup = true
@@ -171,8 +163,12 @@ class PacketManager {
                                 Logger.i(TAG, "getPacket($i)  ： 当前会话不是群聊, 昵称为$title")
                             }
                         }
-                        if (!needGetSelf || !isGroup) {
-                            Logger.i(TAG, "getPacket($i)  ： 当前不抢自己发的红包或者不为群聊，已过滤")
+                        if (!isGroup) {
+                            Logger.i(TAG, "getPacket($i)  ： 单聊不抢自己发送的红包")
+                            continue
+                        }
+                        if (!needGetSelf && isGroup) {
+                            Logger.i(TAG, "getPacket($i)  ： 群聊但是没有开启抢自己的红包")
                             continue
                         }
                         continue
