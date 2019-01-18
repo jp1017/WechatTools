@@ -3,13 +3,22 @@
     <string name="setting_name">插件配置</string>
     <string name="setting_notification_tip">读取微信通知栏消息（非必须）</string>
     <string name="setting_accessibility_tip">开启自动模拟点击行为（必须）</string>
-    <string name="setting_get_self_tip">抢自己的红包</string>
+    <string name="setting_get_self_tip">群聊抢自己的红包</string>
     <string name="setting_filter_tip">开启过滤特定关键字红包</string>
     <string name="setting_delay_tip">开启延迟服务</string>
 
     <string name="setting_title_necessary">必开选项</string>
+    <string name="setting_user_name_tip">微信昵称, 用于支持过滤自身信息</string>
     <string name="setting_title_unnecessary">可选项</string>
 
+    <string name="delay_type">延迟类型</string>
+    <string name="delay_fixation_message">固定延迟毫秒数</string>
+    <string name="delay_random_message">最大随机毫秒数(区间内随机延迟)</string>
+    <string name="delay_edit">提交</string>
+    <string name="delay_back">撤销</string>
+    <string name="delay_none">无延迟</string>
+    <string name="delay_fixation">固定延迟</string>
+    <string name="delay_random">随机延迟</string>
     <string name="tag_commit">添加过滤</string>
     <string name="tag_empty_tip">请输入过滤内容</string>
     <string name="add_tag_tip">请添加过滤内容</string>

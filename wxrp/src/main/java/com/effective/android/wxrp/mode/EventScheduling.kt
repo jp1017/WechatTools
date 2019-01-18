@@ -43,9 +43,9 @@ class EventScheduling {
      * 添加红包列表,用于点击弹出红包对话框
      */
     fun addGetPacketList(nodeInfo: AccessibilityNodeInfo) {
-        var delayedTime = Config.getDelayTime()
+        var delayedTime = Config.getDelayTime(false)
         if (delayedTime > 0) {
-            delayedTime = delayedTime / 2
+            delayedTime /=  2
         }
         Logger.i(TAG, "addGetPacketList delayedTime = $delayedTime")
         if (getPacketList.isEmpty()) {
@@ -66,7 +66,7 @@ class EventScheduling {
      * 添加打开红包，用于点击开打开红包
      */
     fun addOpenPacketList(nodeInfo: AccessibilityNodeInfo) {
-        var delayedTime = Config.getDelayTime()
+        var delayedTime = Config.getDelayTime(false)
         if (delayedTime > 0) {
             delayedTime = delayedTime / 2
         }
@@ -127,16 +127,12 @@ class EventScheduling {
                     //如果是红包界面，则模拟点击开
                     msgOpenPacket -> if (!openPacketList.isEmpty()) {
                         AccessibilityUtil.performClick(openPacketList.last())
-                        getPacketList.removeAt(openPacketList.lastIndex)
+                        openPacketList.removeAt(openPacketList.lastIndex)
                     }
-                    //重新设置个人状态
-                    msgResetSelfPacketStatus -> Constants.setCurrentSelfPacketStatusData(Constants.W_otherStatus)
                     //重新设置点击新消息列表
                     msgResetIsClickedNewMessageList -> Constants.isClickedNewMessageList = false
                     //重新设置获取红包
                     msgResetIsGotPacket -> Constants.isGotPacket = false
-                    //重新设置返回列表界面
-                    msgResetBackToMessageListStatus -> Constants.backtoMessageListStatus = Constants.backtoMessageListOther
                     else -> {
                     }
                 }
@@ -144,9 +140,6 @@ class EventScheduling {
         }
     }
 
-    fun resetSelfPacketStatus() {
-        sendHandlerMessage(msgResetSelfPacketStatus, timeResetSelfPacketStatus)
-    }
 
     fun resetIsClickedNewMessageList() {
         sendHandlerMessage(msgResetIsClickedNewMessageList, timeResetIsClickedNewMessageList)
@@ -154,10 +147,6 @@ class EventScheduling {
 
     fun resetIsGotPacket() {
         sendHandlerMessage(msgResetIsGotPacket, timeResetIsGotPacket)
-    }
-
-    fun resetBacktoMessageListStatus() {
-        sendHandlerMessage(msgResetBackToMessageListStatus, timeResetBackToMessageListStatus)
     }
 
     private fun getBottomFromNodeInfo(nodeInfo: AccessibilityNodeInfo): Int {

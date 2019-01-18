@@ -24,17 +24,16 @@ class PacketManager {
             //如果当前是聊天窗口
             Constants.CLASS_LAUNCHER -> {
                 Logger.i(TAG, "dealWindowStateChanged : 当前在首页")
-                // 聊天页面，则返回列表
-                if (Constants.backtoMessageListStatus == Constants.backtoMessageListReceiveUI) {
-                    AccessibilityUtil.performBack(WXAccessibilityService.getService())
-                    Constants.backtoMessageListStatus = Constants.backtoMessageListChatDialog
-                    return
-                    //如果当前是列表对话框，则不处理
-                } else if (Constants.backtoMessageListStatus == Constants.backtoMessageListChatDialog) {
-                    return
-                }
+                // 红包接收页面，返回会聊天列表
+//                if (Constants.backtoMessageListStatus == Constants.backtoMessageListReceiveUI) {
+//                    AccessibilityUtil.performBack(WXAccessibilityService.getService())
+//                    Constants.backtoMessageListStatus = Constants.backtoMessageListChatDialog
+//                    return
+//                   //如果是聊天对话框，则
+//                } else if (Constants.backtoMessageListStatus == Constants.backtoMessageListChatDialog) {
+//                    return
+//                }
 
-                //如果当前是允许获取自己的红包且已经是打开支付状态
                 if (Config.isOpenGetSelfPacket() && Constants.currentSelfPacketStatus == Constants.W_openedPayStatus) {
                     Constants.setCurrentSelfPacketStatusData(Constants.W_intoChatDialogStatus)
                     getPacket(rootNode, true)
@@ -46,7 +45,7 @@ class PacketManager {
             //红包页面
             Constants.CLASS_PACKET_RECEIVE -> {
                 Logger.i(TAG, "dealWindowStateChanged : 当前已打开红包")
-                if (Config.isOpenGetSelfPacket()&& Constants.currentSelfPacketStatus == Constants.W_intoChatDialogStatus) {
+                if (Config.isOpenGetSelfPacket() && Constants.currentSelfPacketStatus == Constants.W_intoChatDialogStatus) {
                     if (openPacket(rootNode)) {
                         Constants.setCurrentSelfPacketStatusData(Constants.W_gotSelfPacketStatus)
                     }
@@ -100,17 +99,17 @@ class PacketManager {
     fun dealWindowContentChanged(className: String, rootNode: AccessibilityNodeInfo?) {
         Logger.i(TAG, "dealWindowContentChanged")
 
-        //如果当前是列表对话框，则判断当前节点是否存在红包
-        if (Constants.backtoMessageListStatus == Constants.backtoMessageListChatDialog) {
-            //点击进入详情页页面
-            if (clickMessage(rootNode)) {
-                Constants.backtoMessageListStatus = Constants.backtoMessageListOther
-            }
-            return
-
-        } else if (Constants.backtoMessageListStatus >= Constants.backtoMessageListReceiveUI) {
-            return
-        }
+//        //如果当前是列表对话框，则判断当前节点是否存在红包
+//        if (Constants.backtoMessageListStatus == Constants.backtoMessageListChatDialog) {
+//            //点击进入详情页页面
+//            if (clickMessage(rootNode)) {
+//                Constants.backtoMessageListStatus = Constants.backtoMessageListOther
+//            }
+//            return
+//
+//        } else if (Constants.backtoMessageListStatus >= Constants.backtoMessageListReceiveUI) {
+//            return
+//        }
 
         //如果不是通过流程进入，则默认遍历点击新消息
         if (clickMessage(rootNode)) {
@@ -145,16 +144,39 @@ class PacketManager {
         val avatarList = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_AVATAR)
         val tipList = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_PACKET_TIP)
         val messageList = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_PACKET_MESSAGE)
-
+        val pageTitle = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_PAGE_TITLE)
         //找到所有红包绩点
         val packetList = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_PACKET)
         if (!packetList.isEmpty()) {
             for (i in packetList.indices.reversed()) {
 
+
+                if (!pageTitle.isEmpty()) {
+                    val title = packetList[0].text.toString()
+                    if ((title.contains("(") && title.contains(")"))) {
+                        Logger.i(TAG, "getPacket($i)  ： 当前为群聊, 昵称为$title")
+                    }
+                }
+
                 //是否先过滤自己
-                if (!needGetSelf && !avatarList.isEmpty() && avatarList[i].text == Constants.USER_NAME) {
-                    Logger.i(TAG, "getPacket($i)  ： 开启不抢自己, 但是当前红包是自己的，已过滤")
-                    continue
+                if (avatarList.size > i) {
+                    if (!avatarList.isEmpty() && avatarList[i].contentDescription.contains(Config.getUserWxName())) {
+                        var isGroup = false
+                        if (!pageTitle.isEmpty()) {
+                            val title = packetList[0].text.toString()
+                            if ((title.contains("(") && title.contains(")"))) {
+                                Logger.i(TAG, "getPacket($i)  ： 当前会话为群聊, 昵称为$title")
+                                isGroup = true
+                            } else {
+                                Logger.i(TAG, "getPacket($i)  ： 当前会话不是群聊, 昵称为$title")
+                            }
+                        }
+                        if (!needGetSelf || !isGroup) {
+                            Logger.i(TAG, "getPacket($i)  ： 当前不抢自己发的红包或者不为群聊，已过滤")
+                            continue
+                        }
+                        continue
+                    }
                 }
 
                 //过滤已经抢过的，已过期等等
@@ -188,15 +210,15 @@ class PacketManager {
      */
     private fun openPacket(rootNode: AccessibilityNodeInfo?): Boolean {
         Logger.i(TAG, "openPacket")
-        if (rootNode == null && Constants.backtoMessageListStatus == Constants.backtoMessageListOther) {
-            AccessibilityUtil.performBack(WXAccessibilityService.getService())
-            Constants.backtoMessageListStatus = Constants.backtoMessageListReceiveUI
-            Logger.w(TAG, "openPacket == null")
-            eventScheduling.resetBacktoMessageListStatus()
-            return false
-        } else if (Constants.backtoMessageListStatus >= Constants.backtoMessageListReceiveUI) {
-            return false
-        }
+//        if (rootNode == null && Constants.backtoMessageListStatus == Constants.backtoMessageListOther) {
+//            AccessibilityUtil.performBack(WXAccessibilityService.getService())
+//            Constants.backtoMessageListStatus = Constants.backtoMessageListReceiveUI
+//            Logger.w(TAG, "openPacket == null")
+//            eventScheduling.resetBacktoMessageListStatus()
+//            return false
+//        } else if (Constants.backtoMessageListStatus >= Constants.backtoMessageListReceiveUI) {
+//            return false
+//        }
 
         //如果当前节点存在红包，则遍历寻找"开"
         var result = false
@@ -218,7 +240,7 @@ class PacketManager {
     private fun isContainKeyWords(keyWords: List<String>, content: String): Boolean {
         var result = false
         keyWords.map {
-            if (it == content) {
+            if (content.contains(it)) {
                 result = true
             }
         }
@@ -237,15 +259,34 @@ class PacketManager {
             return false
         }
         var result = false
-        val dialogList = nodeInfo.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_LIST_ITEM)
+        val blackKeys = Config.filterTags
+        val needUserWord = Config.isOpenFilterTag()
+        val dialogList = nodeInfo.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_LIST_ITEM)               //会话item
+        val messageTextList = nodeInfo.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_LIST_MESSAGE_TEXT)  //会话内容
+        val TitleList = nodeInfo.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_LIST_TITLE_TEXT)          //会话名字
         if (!dialogList.isEmpty()) {
-            for (item in dialogList) {
-                val messageTextList = item.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_LIST_MESSAGE_TEXT)
-                if (!messageTextList.isEmpty()) {
-                    if (AccessibilityUtil.isRedPacketItem(messageTextList[0])) {
-                        item.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                        result = true
+            for (i in dialogList.indices.reversed()) {
+
+                //todo 目前如果是自己发送的，无法过滤？？
+//                if (TitleList.size > i) {
+//                    if (!TitleList.isEmpty() && TitleList[i].text.contains(Config.getUserWxName())) {
+//                        Logger.i(TAG, "clickMessage($i)  ： 会话是自己发送的红包, 已过滤")
+//                        continue
+//                    }
+//                }
+
+                //是否需要过滤关键字
+                if (messageTextList.size > i) {
+                    val messageTip = messageTextList[0].text.toString()
+                    if (needUserWord && isContainKeyWords(blackKeys, messageTip)) {
+                        Logger.i(TAG, "clickMessage($i) ： 会话红包存在过滤词($messageTip),已过滤")
+                        continue
                     }
+                }
+
+                if (AccessibilityUtil.isRedPacketItem(messageTextList[0])) {
+                    dialogList[i].performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                    result = true
                 }
             }
         }

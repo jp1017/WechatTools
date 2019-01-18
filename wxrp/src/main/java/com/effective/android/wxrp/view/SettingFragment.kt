@@ -7,26 +7,36 @@ import android.os.Bundle
 import android.provider.Settings
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
+import android.text.Editable
 import android.text.TextUtils
+import android.text.TextWatcher
 import android.util.LruCache
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import com.cunoraz.tagview.Tag
 import com.cunoraz.tagview.TagView
 import com.effective.android.wxrp.Constants
 
 import com.effective.android.wxrp.R
 import com.effective.android.wxrp.store.Config
+import com.effective.android.wxrp.utils.Logger
 import com.effective.android.wxrp.utils.ToolUtil
 import com.effective.android.wxrp.view.dialog.AddTagDialog
 import kotlinx.android.synthetic.main.fragment_setting.*
 
 class SettingFragment : Fragment() {
 
+    companion object {
+        private const val TAG = "SettingFragment"
+    }
+
     val tagCache = LruCache<String, Tag>(99)
+    val currentTag = ArrayList<Tag>()
     var tagDialg: AddTagDialog? = null
+    var currentDelayNum: String = "-1"
+    var currentUserName: String = ""
+    var isFixationDelay = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_setting, container, false)
@@ -34,8 +44,13 @@ class SettingFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        tagDialg = AddTagDialog(context!!, object : AddTagDialog.CommitListener {
+        initData()
+        initListener()
+    }
 
+    private fun initData() {
+        //编辑tag对话框
+        tagDialg = AddTagDialog(context!!, object : AddTagDialog.CommitListener {
             override fun commit(tag: String) {
                 if (TextUtils.isEmpty(tag)) {
                     ToolUtil.toast(context!!, context!!.getString(R.string.tag_empty_tip))
@@ -43,9 +58,21 @@ class SettingFragment : Fragment() {
                 }
                 tag_container.addTag(getTag(tag))
             }
-        });
-        initListener()
+        })
+        //tag容器
+        val tagStrings = Config.filterTags
+        tagStrings.map {
+            var tag = tagCache[it]
+            if (tag == null) {
+                tag = Tag(it)
+                tag.background = ColorDrawable(ContextCompat.getColor(context!!, R.color.colorPrimary))
+                tag.isDeletable = true
+                tagCache.put(it, tag)
+            }
+            currentTag.add(tag)
+        }
     }
+
 
     private fun initListener() {
         notification_select.setOnClickListener {
@@ -73,7 +100,10 @@ class SettingFragment : Fragment() {
 
         filter_select.setOnClickListener {
             val filterStatus = filter_select.isSelected
-            initFilterTags(!filterStatus)
+            filer_tag_container.visibility = if (!filterStatus) View.VISIBLE else View.GONE
+            if (filter_select.isSelected) {
+                tag_container.addTags(currentTag)
+            }
             Config.openFilterTag(!filterStatus)
             filter_select.isSelected = !filterStatus
         }
@@ -86,20 +116,121 @@ class SettingFragment : Fragment() {
 
             override fun onTagDeleted(p0: TagView?, p1: Tag?, p2: Int) {
                 tag_container.remove(p2)
+                Config.filterTags.remove(p1?.text)
             }
         })
 
+        delay_none.setOnClickListener {
+            Config.openDelay(true)
+            initDelayState(Config.isOpenDelay(), Config.isFixationDelay())
+        }
 
-        delay_select.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+        delay_random.setOnClickListener {
+            Config.openDelay(false)
+            Config.openFixationDelay(false)
+            initDelayState(Config.isOpenDelay(), Config.isFixationDelay())
+        }
 
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val options = context!!.resources.getStringArray(R.array.delay_action)
-                ToolUtil.toast(context!!, "选中了" + options[position] + "")
-                Config.setDelayOption(position)
+        delay_fixation.setOnClickListener {
+            Config.openDelay(false)
+            Config.openFixationDelay(true)
+            initDelayState(Config.isOpenDelay(), Config.isFixationDelay())
+        }
+
+        delay_num.addTextChangedListener(object : TextWatcher {
+
+            override fun afterTextChanged(s: Editable?) {
+                if (s.toString().isEmpty()) {
+                    delay_commit.text = context!!.getString(R.string.delay_back)
+                } else {
+                    currentDelayNum = s.toString()
+                    if (currentDelayNum.toInt() > 0 && currentDelayNum.toInt() != Config.getDelayTime(true)) {
+                        delay_commit.text = context!!.getString(R.string.delay_edit)
+                    } else {
+                        delay_commit.text = context!!.getString(R.string.delay_back)
+                    }
+                }
             }
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+        })
+
+        delay_commit.setOnClickListener {
+            if (delay_commit.text == context!!.getString(R.string.delay_edit)) {
+                val time = currentDelayNum!!.toInt()
+                Config.setDelayTime(time)
+                Logger.i(TAG, "提交当前修改，是否是固定延迟 ：$isFixationDelay delayTime : $time")
+                ToolUtil.toast(context!!, "已更新延迟时间")
+            } else {
+                Logger.i(TAG, "撤销当前时间修改")
+                delay_num.setText(Config.getDelayTime(true).toString())
+            }
+        }
+
+        user_name_edit.addTextChangedListener(object : TextWatcher {
+
+            override fun afterTextChanged(s: Editable?) {
+                if (s.toString().isEmpty()) {
+                    user_name_commit.text = context!!.getString(R.string.delay_back)
+                } else {
+                    currentUserName = s.toString()
+                    if (currentUserName != Config.getUserWxName()) {
+                        user_name_commit.text = context!!.getString(R.string.delay_edit)
+                    } else {
+                        user_name_commit.text = context!!.getString(R.string.delay_back)
+                    }
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+        })
+
+        user_name_commit.setOnClickListener {
+            if (user_name_commit.text == context!!.getString(R.string.delay_edit)) {
+                Config.setUserWxName(currentUserName)
+                Logger.i(TAG, "提交当前修改，当前微信昵称为 ：$currentUserName")
+                ToolUtil.toast(context!!, "已更新微信昵称")
+            } else {
+                Logger.i(TAG, "撤销当前时间修改")
+                user_name_edit.setText(Config.getUserWxName())
+            }
+        }
+    }
+
+    /**
+     * 切换延迟
+     */
+    private fun initDelayState(openDelay: Boolean, isFixation: Boolean) {
+        if (openDelay) {
+            delay_none.isSelected = true
+            delay_random.isSelected = false
+            delay_fixation.isSelected = false
+            delay_container.visibility = View.GONE
+        } else {
+            delay_none.isSelected = false
+            delay_container.visibility = View.VISIBLE
+            if (isFixation) {
+                delay_random.isSelected = false
+                delay_fixation.isSelected = true
+                delay_message.text = context!!.getString(R.string.delay_fixation_message)
+                currentDelayNum = Config.getDelayTime(true).toString()
+                delay_num.setText(currentDelayNum)
+                delay_commit.isEnabled = true
+            } else {
+                delay_random.isSelected = true
+                delay_fixation.isSelected = false
+                delay_message.text = context!!.getString(R.string.delay_random_message)
+                currentDelayNum = Config.getDelayTime(true).toString()
+                delay_num.setText(currentDelayNum)
+                delay_commit.isEnabled = true
             }
         }
     }
@@ -110,7 +241,13 @@ class SettingFragment : Fragment() {
         accessibility_select.isSelected = ToolUtil.isServiceRunning(context!!, Constants.PACKAGE_SELF_APPLICATION + "." + Constants.CLASS_ACCESSBILITY)
         getSelf_select.isSelected = Config.isOpenGetSelfPacket()
         filter_select.isSelected = Config.isOpenFilterTag()
-        initFilterTags(filter_select.isSelected)
+        filer_tag_container.visibility = if (filter_select.isSelected) View.VISIBLE else View.GONE
+        if (filter_select.isSelected) {
+            tag_container.addTags(currentTag)
+        }
+        initDelayState(Config.isOpenDelay(), Config.isFixationDelay())
+        currentUserName = Config.getUserWxName()
+        user_name_edit.setText(currentUserName)
     }
 
     private fun getTag(key: String): Tag {
@@ -121,26 +258,7 @@ class SettingFragment : Fragment() {
             tag.isDeletable = true
             tagCache.put(key, tag)
         }
-        return tag;
-    }
-
-    private fun initFilterTags(visible: Boolean) {
-        filer_tag_container.visibility = if (visible) View.VISIBLE else View.GONE
-        if (visible) {
-            val tagStrings = Config.filterTags
-            val tags = ArrayList<Tag>()
-            tagStrings.map {
-                var tag = tagCache[it]
-                if (tag == null) {
-                    tag = Tag(it)
-                    tag.background = ColorDrawable(ContextCompat.getColor(context!!, R.color.colorPrimary))
-                    tag.isDeletable = true
-                    tagCache.put(it, tag)
-                }
-                tags.add(tag)
-            }
-            tag_container.addTags(tags)
-        }
+        return tag
     }
 
     override fun onResume() {

@@ -17,8 +17,8 @@ open class Constants internal constructor() {
         /**
          * 类名
          */
-        val CLASS_NOTIFICATION = "WXNotificationService"            // 通知监听类名
-        val CLASS_ACCESSBILITY = "WXAccessibilityService"           // 辅助服务类名
+        val CLASS_NOTIFICATION = "services.WXNotificationService"            // 通知监听类名
+        val CLASS_ACCESSBILITY = "services.WXAccessibilityService"           // 辅助服务类名
         val CLASS_LAUNCHER = "com.tencent.mm.ui.LauncherUI"         // 微信 聊天列表、聊天窗口（单聊私聊都是）
         var CLASS_PACKET_RECEIVE = "com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyNotHookReceiveUI"           // 微信 红包“開”的窗口
         val CLASS_PACKET_SEND = "com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyPrepareUI"               // 微信 自己发红包的窗口
@@ -37,6 +37,7 @@ open class Constants internal constructor() {
          */
         val ID_WID_CHAT_LIST_ITEM = "com.tencent.mm:id/b4m"                     // 首页列表 - 聊天会话 - item id
         val ID_WID_CHAT_LIST_MESSAGE_TEXT = "com.tencent.mm:id/b4q"            // 微信列表 每一个item中的文本id
+        val ID_WID_CHAT_LIST_TITLE_TEXT = "com.tencent.mm:id/b4o"            // 微信列表 每一个item中的会话名字
 
         /**
          * 聊天页面 id
@@ -46,6 +47,7 @@ open class Constants internal constructor() {
         val ID_WID_CHAT_DIALOG_PACKET = "com.tencent.mm:id/ao4"             // 聊天页面 - 聊天列表 - 红包item - 包括下面
         val ID_WID_CHAT_DIALOG_PACKET_MESSAGE = "com.tencent.mm:id/apd"     // 聊天页面 - 聊天列表 - 红包item - 祝福语比如说恭喜发财
         val ID_WID_CHAT_DIALOG_PACKET_TIP = "com.tencent.mm:id/ape"         // 聊天页面 - 聊天列表 - 红包item - 红包状态比如说领取之后显示已领取
+        val ID_WID_CHAT_DIALOG_PAGE_TITLE = "com.tencent.mm:id/jw"          // 聊天页面 - 聊天列表 - 个人聊天则是昵称，群聊天则是群昵称
 
 
         /**
@@ -70,18 +72,10 @@ open class Constants internal constructor() {
             currentSelfPacketStatus = status
         }
 
-        /**
-         * 页面逻辑状态
-         */
-        var backtoMessageListOther = 0          //聊天会话？？？？？
-        var backtoMessageListReceiveUI = 1      //接收红包页面
-        var backtoMessageListChatDialog = 2     //聊天详情页面
-        var backtoMessageListStatus = backtoMessageListOther
-
 
         var isPreviouslyLockScreen = false          //是否已经锁屏
         var isGotNotification = false               //是否获取锁屏信息
         var isClickedNewMessageList = false         //是否点击新消息列表
-        var isGotPacket = false                     //是否获取红包
+        var isGotPacket = false                     //是否获取到红包，打开之后为false
     }
 }

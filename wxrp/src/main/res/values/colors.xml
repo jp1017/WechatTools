@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#E06057</color>
     <color name="colorAccent">#FF4081</color>
     <color name="text_primary_color">#242021</color>
+    <color name="primary_disable_color">#DA807A</color>
 
     <color name="dividerColor">#CCD7DD</color>
     <color name="setting_title_color">#E06057</color>

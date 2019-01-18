@@ -3,6 +3,7 @@ package com.effective.android.wxrp.view
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.effective.android.wxrp.R
+import com.effective.android.wxrp.store.Config
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -34,7 +35,12 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction().hide(settingFragment!!).commit()
     }
 
-//    private fun init() {
+    override fun onDestroy() {
+        super.onDestroy()
+        Config.onSave()
+    }
+
+    //    private fun init() {
 //        initViewState()
 //        setClickListener();
 //    }

@@ -1,6 +1,5 @@
 package com.effective.android.wxrp.store
 
-import android.support.annotation.IntegerRes
 import com.effective.android.wxrp.RpApplication
 import java.lang.StringBuilder
 import java.util.*
@@ -10,6 +9,9 @@ class Config private constructor() {
     companion object {
 
         private const val SPLIT_POINT = "_&_"
+
+        private const val KEY_USER_WX_NAME = "key_user_wx_nick"
+        private var userWxName = ""
 
         //是否打开自己红包
         private const val KEY_OPEN_GET_SELF_PACKET = "key_open_get_self_packet"
@@ -23,29 +25,30 @@ class Config private constructor() {
         private var defaultTagsString: String = "测_&_挂_&_专属_&_生日_&_踢"
 
         //是否支持延迟：分为 无延迟，固定延迟和随机延迟
-        private const val KEY_DELAY_OPTION = "key_delay_option"
-        private const val KEY_DELAY_NUM_DATA = "delayRandomNum"           //随机最大数 {$fixationDelayTime}_&_{randomDelayTime}
+        private const val KEY_OPEN_DELAY_OPTION = "key_delay_option"
+        private const val KEY_IS_FIXATION_DELAY = "key_is_fixation_delay"
+        private const val KEY_DELAY_TIME_DATA = "delayTimeNum"           //随机最大数 {$fixationDelayTime}_&_{randomDelayTime}
         private var defaultTimesString: String = "100_&_100"
-        const val DELAY_OPTION_NONE = 0
-        const val DELAY_OPTION_FOXATION = 1
-        const val DELAY_OPTIOM_RANDOM = 2
-        private var delayOption = DELAY_OPTION_NONE
-        var fixationDelayTime: Int = 100
-        var randomDelayTime: Int = 100
-
+        private var openDelay = false
+        private var isFixationDelay = true
+        private var fixationDelayTime: Int = 100
+        private var randomDelayTime: Int = 100
 
         /**
          * 应用启动时需要初始化
          */
         fun init() {
+            userWxName = RpApplication.SP().getString(KEY_USER_WX_NAME, userWxName)
+
             openGetSelfPacket = RpApplication.SP().getBoolean(KEY_OPEN_GET_SELF_PACKET, openGetSelfPacket)
 
             val list = RpApplication.SP().getString(KEY_FILTER_TAG_DATA, defaultTagsString)!!.split(SPLIT_POINT).toList()
             filterTags.addAll(list)
             openFilterTag = RpApplication.SP().getBoolean(KEY_OPEN_FILTER_TAG, openFilterTag)
 
-            delayOption = RpApplication.SP().getInt(KEY_DELAY_OPTION, delayOption)
-            val times = RpApplication.SP().getString(KEY_DELAY_NUM_DATA, defaultTimesString)!!.split(SPLIT_POINT).toList()
+            openDelay = RpApplication.SP().getBoolean(KEY_OPEN_DELAY_OPTION, openDelay)
+            isFixationDelay = RpApplication.SP().getBoolean(KEY_IS_FIXATION_DELAY, isFixationDelay)
+            val times = RpApplication.SP().getString(KEY_DELAY_TIME_DATA, defaultTimesString)!!.split(SPLIT_POINT).toList()
             if (!times.isEmpty() && times.size == 2) {
                 fixationDelayTime = times[0].toInt()
                 randomDelayTime = times[1].toInt()
@@ -70,12 +73,18 @@ class Config private constructor() {
             timesString.append(randomDelayTime)
 
             RpApplication.SP().edit()
+                    .putString(KEY_USER_WX_NAME, userWxName)
                     .putBoolean(KEY_OPEN_GET_SELF_PACKET, openGetSelfPacket)
                     .putBoolean(KEY_OPEN_FILTER_TAG, openFilterTag).putString(KEY_FILTER_TAG_DATA, tagsString.toString())
-                    .putInt(KEY_DELAY_OPTION, delayOption).putString(KEY_DELAY_NUM_DATA, timesString.toString())
+                    .putBoolean(KEY_OPEN_DELAY_OPTION, openDelay).putBoolean(KEY_IS_FIXATION_DELAY, isFixationDelay).putString(KEY_DELAY_TIME_DATA, timesString.toString())
                     .apply()
         }
 
+        fun getUserWxName(): String = userWxName
+
+        fun setUserWxName(userName: String) {
+            userWxName = userName
+        }
 
         fun openGetSelfPacket(b: Boolean) {
             openGetSelfPacket = b
@@ -89,44 +98,42 @@ class Config private constructor() {
 
         fun isOpenFilterTag(): Boolean = openFilterTag
 
+        fun openDelay(b: Boolean) {
+            openDelay = b
+        }
 
-        fun setDelayOption(option: Int) {
-            delayOption = when (option) {
-                Config.DELAY_OPTION_NONE -> {
-                    Config.DELAY_OPTION_NONE
-                }
-                Config.DELAY_OPTION_FOXATION -> {
-                    Config.DELAY_OPTION_FOXATION
-                }
-                Config.DELAY_OPTIOM_RANDOM -> {
-                    Config.DELAY_OPTIOM_RANDOM
-                }
-                else -> {
-                    Config.DELAY_OPTION_NONE
-                }
+        fun isOpenDelay(): Boolean = openDelay
+
+        fun openFixationDelay(b: Boolean) {
+            isFixationDelay = b
+        }
+
+        fun isFixationDelay(): Boolean = isFixationDelay
+
+
+        fun setDelayTime(time: Int) {
+            if (isFixationDelay) {
+                fixationDelayTime = time
+            } else {
+                randomDelayTime = time
             }
         }
 
-        fun getDelayOption(): Int = delayOption
 
-        fun getDelayTime(): Int = getDelayTime(getDelayOption())
-
-        private fun getDelayTime(option: Int): Int {
-            return when (option) {
-                Config.DELAY_OPTION_NONE -> {
-                    0
-                }
-                Config.DELAY_OPTION_FOXATION -> {
-                    fixationDelayTime
-                }
-                Config.DELAY_OPTIOM_RANDOM -> {
+        fun getDelayTime(b: Boolean): Int {
+            return if (openDelay) {
+                0
+            } else if (isFixationDelay) {
+                fixationDelayTime
+            } else {
+                if (b) {
+                    randomDelayTime
+                } else {
                     generateRandomNum(randomDelayTime)
                 }
-                else -> {
-                    0
-                }
             }
         }
+
 
         private fun generateRandomNum(n: Int): Int {
             val rand = Random()
