@@ -12,7 +12,6 @@ class AccessibilityUtil {
     companion object {
         private const val TAG = "AccessibilityHelper"
 
-        fun isRedPacketItem(node: AccessibilityNodeInfo) = node.text.toString().contains(Constants.TEXT_WX_PACKET)
 
         fun performClick(nodeInfo: AccessibilityNodeInfo?): Boolean {
             Logger.i(TAG, "performClick")

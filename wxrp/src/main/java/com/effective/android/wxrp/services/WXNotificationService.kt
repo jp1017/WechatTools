@@ -24,7 +24,6 @@ class WXNotificationService: NotificationListenerService() {
     companion object {
         private const val TAG = "WXNotificationService"
     }
-
     private var wqNotificationService: WXNotificationService? = null
 
     override fun onListenerConnected() {

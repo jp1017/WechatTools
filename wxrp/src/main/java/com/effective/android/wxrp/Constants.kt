@@ -33,13 +33,6 @@ open class Constants internal constructor() {
 
 
         /**
-         * 首页聊天会话 id
-         */
-        val ID_WID_CHAT_LIST_ITEM = "com.tencent.mm:id/b4m"                     // 首页列表 - 聊天会话 - item id
-        val ID_WID_CHAT_LIST_MESSAGE_TEXT = "com.tencent.mm:id/b4q"            // 微信列表 每一个item中的文本id
-        val ID_WID_CHAT_LIST_TITLE_TEXT = "com.tencent.mm:id/b4o"            // 微信列表 每一个item中的会话名字
-
-        /**
          * 聊天页面 id
          */
         val ID_WID_CHAT_DIALOG_ITEM = "com.tencent.mm:id/a9"                //聊天界面 - 聊天列表 - 对话item
@@ -49,13 +42,29 @@ open class Constants internal constructor() {
         val ID_WID_CHAT_DIALOG_PACKET_TIP = "com.tencent.mm:id/ape"         // 聊天页面 - 聊天列表 - 红包item - 红包状态比如说领取之后显示已领取
         val ID_WID_CHAT_DIALOG_PAGE_TITLE = "com.tencent.mm:id/jw"          // 聊天页面 - 聊天列表 - 个人聊天则是昵称，群聊天则是群昵称
 
+        /**
+         * 首页-微信tab 聊天会话 id
+         */
+        val ID_WID_CHAT_LIST_ITEM = "com.tencent.mm:id/b4m"                     // 首页列表 - 聊天会话 - item id
+        val ID_WID_CHAT_LIST_MESSAGE_TEXT = "com.tencent.mm:id/b4q"            // 微信列表 每一个item中的文本id
+        val ID_WID_CHAT_LIST_TITLE_TEXT = "com.tencent.mm:id/b4o"            // 微信列表 每一个item中的会话名字
+
+        /**
+         * 首页-我tab
+         */
+        val ID_USER_NICK = "com.tencent.mm:id/a5b"                  // 我的页面，微信昵称
+        val ID_USER_WEIXINHAO = "com.tencent.mm:id/d7y"            // 我的页面，微信号
+
+        val ID_HOME_TITLE = "android:id/text1"              // 首页4个tab的标题，存在与微信tab，通讯录tab，发现tab，用于过滤没有必要的轮训
+
 
         /**
          * 校验文本
          */
         val TEXT_WX_PACKET = "[微信红包]"
-        val TEXT_WX_GOT_PACKET = "已领取"
-        var USER_NAME = "yummylau头像"
+        val TEXT_TAB_TITLE_WEIXIN= "微信"
+        val TEXT_TAB_TITLE_CHATLIST= "通讯录"
+        val TEXT_TAB_TITLE_DISC = "发现"
 
 
         /**
