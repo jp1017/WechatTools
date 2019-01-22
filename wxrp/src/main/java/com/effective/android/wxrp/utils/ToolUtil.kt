@@ -8,12 +8,33 @@ import android.os.PowerManager
 import android.support.v4.app.NotificationManagerCompat
 import android.widget.Toast
 import com.effective.android.wxrp.Constants
+import java.text.SimpleDateFormat
+import java.util.*
+
 
 class ToolUtil private constructor() {
     companion object {
         private const val TAG = "Tools"
+        val YMD_SDF = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val TIME_24_SDF = SimpleDateFormat("HH:mm", Locale.getDefault())
+
+        fun isWeixinAvilible(context: Context): Boolean {
+            val packageManager = context.packageManager// 获取packagemanager
+            val pinfo = packageManager.getInstalledPackages(0)// 获取所有已安装程序的包信息
+            if (pinfo != null) {
+                for (i in pinfo.indices) {
+                    val pn = pinfo[i].packageName
+                    if (pn == Constants.PACKAFEGE_WECHAT) {
+                        return true
+                    }
+                }
+            }
+            return false
+        }
 
         fun toast(context: Context, msg: String) = Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+
+        fun toast(context: Context, msg: String, time: Int) = Toast.makeText(context, msg, time).show()
 
         fun isServiceRunning(context: Context, className: String): Boolean {
             val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
@@ -96,6 +117,78 @@ class ToolUtil private constructor() {
                 }
             }
             return null
+        }
+
+        /**
+         * 判断两个日期是否在同一周
+         *
+         * @param date1
+         * @param date2
+         * @return
+         */
+        fun isSameWeekDates(date1: Date, date2: Date): Boolean {
+            val cal1 = Calendar.getInstance()
+            val cal2 = Calendar.getInstance()
+            cal1.time = date1
+            cal2.time = date2
+            val subYear = cal1.get(Calendar.YEAR) - cal2.get(Calendar.YEAR)
+            if (0 == subYear) {
+                if (cal1.get(Calendar.WEEK_OF_YEAR) == cal2.get(Calendar.WEEK_OF_YEAR))
+                    return true
+            } else if (1 == subYear && 11 == cal2.get(Calendar.MONTH)) {
+                // 如果12月的最后一周横跨来年第一周的话则最后一周即算做来年的第一周
+                if (cal1.get(Calendar.WEEK_OF_YEAR) == cal2.get(Calendar.WEEK_OF_YEAR))
+                    return true
+            } else if (-1 == subYear && 11 == cal1.get(Calendar.MONTH)) {
+                if (cal1.get(Calendar.WEEK_OF_YEAR) == cal2.get(Calendar.WEEK_OF_YEAR))
+                    return true
+            }
+            return false
+        }
+
+        fun getWeekOfDate(date: Date): String {
+            val weekDaysName = arrayOf("星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六")
+            val calendar = Calendar.getInstance()
+            calendar.time = date
+            val intWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1
+            return weekDaysName[intWeek]
+        }
+
+        fun getTimeShowString(milliseconds: Long): String {
+            var dataString = ""
+            var timeStringBy24 = ""
+
+            val currentTime = Date(milliseconds)
+            val today = Date()
+            val todayStart = Calendar.getInstance()
+            todayStart.set(Calendar.HOUR_OF_DAY, 0)
+            todayStart.set(Calendar.MINUTE, 0)
+            todayStart.set(Calendar.SECOND, 0)
+            todayStart.set(Calendar.MILLISECOND, 0)
+            val todaybegin = todayStart.time
+            val yesterdaybegin = Date(todaybegin.time - 3600 * 24 * 1000)
+            val preyesterday = Date(yesterdaybegin.time - 3600 * 24 * 1000)
+
+            var containZH = true
+            if (!currentTime.before(todaybegin)) {
+                dataString = "今天"
+            } else if (!currentTime.before(yesterdaybegin)) {
+                dataString = "昨天"
+            } else if (!currentTime.before(preyesterday)) {
+                dataString = "前天"
+            } else if (isSameWeekDates(currentTime, today)) {
+                dataString = getWeekOfDate(currentTime)
+            } else {
+                dataString = YMD_SDF.format(currentTime)
+                containZH = false
+            }
+
+            timeStringBy24 = TIME_24_SDF.format(currentTime)
+            return if (containZH) {
+                "$dataString $timeStringBy24"
+            } else {
+                dataString
+            }
         }
     }
 }

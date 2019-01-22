@@ -31,6 +31,12 @@ open class Constants internal constructor() {
          */
         val ID_WID_CHAT_PACKET_DIALOG_BUTTON = "com.tencent.mm:id/cv0"       // 聊天页面 - 红包对话框 - 开
 
+        /**
+         * 红包详情页 id
+         */
+        val ID_PACKET_DETAIL_POST_USER_NAME = "com.tencent.mm:id/cqr"       // 红包详情页 - 发送者昵称
+        val ID_PACKET_DETAIL_PACKET_NUM = "com.tencent.mm:id/cqv"           // 红包详情页 - 红包金额
+
 
         /**
          * 聊天页面 id

@@ -2,11 +2,15 @@ package com.effective.android.wxrp.mode
 
 import android.text.TextUtils
 import android.view.accessibility.AccessibilityNodeInfo
+import android.widget.Toast
 import com.effective.android.wxrp.Constants
+import com.effective.android.wxrp.RpApplication
 import com.effective.android.wxrp.services.WXAccessibilityService
 import com.effective.android.wxrp.store.Config
+import com.effective.android.wxrp.store.db.PacketRecord
 import com.effective.android.wxrp.utils.AccessibilityUtil
 import com.effective.android.wxrp.utils.Logger
+import com.effective.android.wxrp.utils.ToolUtil
 
 class PacketManager {
 
@@ -28,6 +32,11 @@ class PacketManager {
             //如果当前是聊天窗口
             Constants.CLASS_LAUNCHER -> {
                 Logger.i(TAG, "dealWindowStateChanged : 当前在首页")
+
+                if (tryGetUserNamePage(rootNode)) {
+                    return
+                }
+
                 if (filterHomeTabPage(rootNode)) {
                     if (Config.isOpenGetSelfPacket() && Constants.currentSelfPacketStatus == Constants.W_openedPayStatus) {
                         Constants.setCurrentSelfPacketStatusData(Constants.W_intoChatDialogStatus)
@@ -80,12 +89,30 @@ class PacketManager {
                     Constants.setCurrentSelfPacketStatusData(Constants.W_otherStatus)
                 }
                 if (isGotPacket) {
+                    eventScheduling.sendPacketRecord(getPacketRecord(rootNode))
+                    //写入所抢的服务
                     AccessibilityUtil.performBack(WXAccessibilityService.getService())
                     isGotPacket = false
                 }
             }
 
         }
+    }
+
+    fun getPacketRecord(rootNode: AccessibilityNodeInfo?): PacketRecord? {
+        Logger.i(TAG, "getPacketRecord")
+        if (rootNode == null) {
+            Logger.i(TAG, "getPakcetRecord-rootNode : null")
+        }
+        val postUser = rootNode!!.findAccessibilityNodeInfosByViewId(Constants.ID_PACKET_DETAIL_POST_USER_NAME)
+        val number = rootNode!!.findAccessibilityNodeInfosByViewId(Constants.ID_PACKET_DETAIL_PACKET_NUM)
+        if (!postUser.isEmpty() && !number.isEmpty()) {
+            val record = PacketRecord()
+            record.num = number[0]?.text.toString().toFloat()
+            record.postUser = postUser[0]?.text.toString()
+            return record
+        }
+        return null
     }
 
     /**
@@ -96,6 +123,10 @@ class PacketManager {
         Logger.i(TAG, "dealWindowContentChanged")
         if (rootNode == null) {
             Logger.i(TAG, "dealWindowStateChanged-rootNode : null")
+            return
+        }
+
+        if (tryGetUserNamePage(rootNode)) {
             return
         }
 
@@ -123,6 +154,23 @@ class PacketManager {
                 return
             }
         }
+    }
+
+    private fun tryGetUserNamePage(rootNode: AccessibilityNodeInfo?): Boolean {
+        if (rootNode == null) {
+            return false
+        }
+        val tabTitle = rootNode.findAccessibilityNodeInfosByViewId(Constants.ID_USER_NICK)               //会话item
+        if (tabTitle.isEmpty()) {
+            return false
+        }
+        val actionText = tabTitle[0].text
+        val replaceable = Config.setUserWxName(actionText.toString())
+        if (replaceable) {
+            ToolUtil.toast(RpApplication.INSTANCE(), "已获取昵称 $actionText")
+        }
+        Logger.i(TAG, "tryGetUserNamePage ： true, 当前userName($actionText)")
+        return replaceable
     }
 
     private fun filterHomeTabPage(rootNode: AccessibilityNodeInfo?): Boolean {

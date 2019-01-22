@@ -1,5 +1,6 @@
 package com.effective.android.wxrp.store
 
+import android.text.TextUtils
 import com.effective.android.wxrp.RpApplication
 import java.lang.StringBuilder
 import java.util.*
@@ -82,8 +83,12 @@ class Config private constructor() {
 
         fun getUserWxName(): String = userWxName
 
-        fun setUserWxName(userName: String) {
-            userWxName = userName
+        fun setUserWxName(userName: String): Boolean {
+            if (!TextUtils.isEmpty(userName) && userWxName != userName) {
+                userWxName = userName
+                return true
+            }
+            return false
         }
 
         fun openGetSelfPacket(b: Boolean) {

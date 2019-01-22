@@ -7,6 +7,7 @@ import android.os.Message
 import android.view.accessibility.AccessibilityNodeInfo
 import com.effective.android.wxrp.Constants
 import com.effective.android.wxrp.store.Config
+import com.effective.android.wxrp.store.db.PacketRecord
 import com.effective.android.wxrp.utils.AccessibilityUtil
 import com.effective.android.wxrp.utils.Logger
 import java.util.*
@@ -31,6 +32,7 @@ class EventScheduling {
 
     private val msgGetPacket = 0
     private val msgOpenPacket = 1
+    private val msgPacketRecord = 6
     private val msgResetSelfPacketStatus = 2
     private val msgResetIsClickedNewMessageList = 3
     private val msgResetIsGotPacket = 4
@@ -45,7 +47,7 @@ class EventScheduling {
     fun addGetPacketList(nodeInfo: AccessibilityNodeInfo) {
         var delayedTime = Config.getDelayTime(false)
         if (delayedTime > 0) {
-            delayedTime /=  2
+            delayedTime /= 2
         }
         Logger.i(TAG, "addGetPacketList delayedTime = $delayedTime")
         if (getPacketList.isEmpty()) {
@@ -140,6 +142,16 @@ class EventScheduling {
         }
     }
 
+
+    fun sendPacketRecord(packetRecord: PacketRecord?) {
+        if (packetRecord == null) {
+            return
+        }
+        val msg = checkMsgHandler!!.obtainMessage()
+        msg!!.what = msgPacketRecord
+        msg!!.obj = packetRecord
+        checkMsgHandler!!.sendMessageDelayed(msg, 0)
+    }
 
     fun resetIsClickedNewMessageList() {
         sendHandlerMessage(msgResetIsClickedNewMessageList, timeResetIsClickedNewMessageList)

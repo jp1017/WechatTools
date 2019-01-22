@@ -6,6 +6,6 @@
 
     <dimen name="setting_icon_size">20dp</dimen>
     <dimen name="setting_title_size">17sp</dimen>
-    <dimen name="setting_tip_size">15sp</dimen>
+    <dimen name="setting_tip_size">17sp</dimen>
     <dimen name="setting_item_height">40dp</dimen>
 </resources>

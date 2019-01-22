@@ -9,6 +9,7 @@
     <color name="dividerColor">#CCD7DD</color>
     <color name="setting_title_color">#E06057</color>
     <color name="setting_tip_color">#242021</color>
+    <color name="setting_more_tip_color">#4c4345</color>
     <color name="setting_select_stroke_color">#242021</color>
 
 </resources>

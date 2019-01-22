@@ -86,12 +86,6 @@ class SettingFragment : Fragment() {
             }
         }
 
-        accessibility_select.setOnClickListener {
-            val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
-        }
-
         getSelf_select.setOnClickListener {
             val selectStatus = getSelf_select.isSelected
             Config.openGetSelfPacket(!selectStatus)
@@ -170,39 +164,6 @@ class SettingFragment : Fragment() {
                 delay_num.setText(Config.getDelayTime(true).toString())
             }
         }
-
-        user_name_edit.addTextChangedListener(object : TextWatcher {
-
-            override fun afterTextChanged(s: Editable?) {
-                if (s.toString().isEmpty()) {
-                    user_name_commit.text = context!!.getString(R.string.delay_back)
-                } else {
-                    currentUserName = s.toString()
-                    if (currentUserName != Config.getUserWxName()) {
-                        user_name_commit.text = context!!.getString(R.string.delay_edit)
-                    } else {
-                        user_name_commit.text = context!!.getString(R.string.delay_back)
-                    }
-                }
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            }
-        })
-
-        user_name_commit.setOnClickListener {
-            if (user_name_commit.text == context!!.getString(R.string.delay_edit)) {
-                Config.setUserWxName(currentUserName)
-                Logger.i(TAG, "提交当前修改，当前微信昵称为 ：$currentUserName")
-                ToolUtil.toast(context!!, "已更新微信昵称")
-            } else {
-                Logger.i(TAG, "撤销当前时间修改")
-                user_name_edit.setText(Config.getUserWxName())
-            }
-        }
     }
 
     /**
@@ -238,7 +199,6 @@ class SettingFragment : Fragment() {
 
     private fun initState() {
         notification_select.isSelected = ToolUtil.isServiceRunning(context!!, Constants.PACKAGE_SELF_APPLICATION + "." + Constants.CLASS_NOTIFICATION)
-        accessibility_select.isSelected = ToolUtil.isServiceRunning(context!!, Constants.PACKAGE_SELF_APPLICATION + "." + Constants.CLASS_ACCESSBILITY)
         getSelf_select.isSelected = Config.isOpenGetSelfPacket()
         filter_select.isSelected = Config.isOpenFilterTag()
         filer_tag_container.visibility = if (filter_select.isSelected) View.VISIBLE else View.GONE
@@ -247,7 +207,6 @@ class SettingFragment : Fragment() {
         }
         initDelayState(Config.isOpenDelay(), Config.isFixationDelay())
         currentUserName = Config.getUserWxName()
-        user_name_edit.setText(currentUserName)
     }
 
     private fun getTag(key: String): Tag {

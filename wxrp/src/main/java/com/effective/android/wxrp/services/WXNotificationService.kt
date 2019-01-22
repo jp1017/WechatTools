@@ -28,7 +28,6 @@ class WXNotificationService: NotificationListenerService() {
 
     override fun onListenerConnected() {
         Logger.i(TAG, "onListenerConnected")
-        Toast.makeText(this, "监听微信通知栏 服务已开启", Toast.LENGTH_LONG).show()
         if (wqNotificationService == null) {
             wqNotificationService = this
         }
@@ -37,7 +36,6 @@ class WXNotificationService: NotificationListenerService() {
 
     override fun onListenerDisconnected() {
         Logger.i(TAG, "onListenerDisconnected")
-        Toast.makeText(this, "监听微信通知栏 服务已断开", Toast.LENGTH_LONG).show()
         wqNotificationService = null
         super.onListenerDisconnected()
     }
