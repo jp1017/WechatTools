@@ -1,25 +1,167 @@
-package com.effective.android.wxrp.mode
+package com.effective.android.wxrp
 
+import android.os.Handler
+import android.os.HandlerThread
+import android.os.Message
+import android.support.annotation.MainThread
 import android.text.TextUtils
 import android.view.accessibility.AccessibilityNodeInfo
-import android.widget.Toast
-import com.effective.android.wxrp.Constants
-import com.effective.android.wxrp.RpApplication
 import com.effective.android.wxrp.services.WXAccessibilityService
 import com.effective.android.wxrp.store.Config
 import com.effective.android.wxrp.store.db.PacketRecord
 import com.effective.android.wxrp.utils.AccessibilityUtil
 import com.effective.android.wxrp.utils.Logger
+import com.effective.android.wxrp.utils.NodeUtil
 import com.effective.android.wxrp.utils.ToolUtil
+import java.util.ArrayList
 
-class PacketManager {
+class AccessibilityManager(string: String) : HandlerThread(string) {
+
+    private val getPacketList: ArrayList<AccessibilityNodeInfo> = ArrayList()
+    private val openPacketList: ArrayList<AccessibilityNodeInfo> = ArrayList()
+    private var checkMsgHandler: Handler? = null
+    private var isGotPacket = false
 
     companion object {
-        private const val TAG = "PacketManager"
-        private var isGotPacket = false
+        private const val TAG = "AccessibilityManager"
+        private const val MSG_ADD_PACKET = 0
+        private const val MSG_OPEN_PACKET = 1
+        private const val MSG_PACKET_DETAIL = 2
+        private const val MSG_CLICK_NEW_MESSAGE = 3
+        private const val MSG_RESET_GOT_PACKET = 4
     }
 
-    private val eventScheduling = EventScheduling()
+    override fun start() {
+        super.start()
+        checkMsgHandler = object : Handler(this.looper) {
+            override fun handleMessage(msg: Message) {
+                Logger.i(TAG, "handleMessage msg.what = " + msg.what)
+                when (msg.what) {
+                    MSG_ADD_PACKET -> {
+                        val node = msg.obj
+                        if (node != null && node is AccessibilityNodeInfo) {
+                            if (getPacketList.isEmpty()) {
+                                Logger.i(TAG, "sendGetPacketMsg " + node.toString())
+                                getPacketList.add(node)
+                                AccessibilityUtil.performClick(getPacketList.last())
+                                getPacketList.removeAt(getPacketList.lastIndex)
+                            } else {
+                                if (!NodeUtil.containNode(node, getPacketList)) {
+                                    Logger.i(TAG, "sendGetPacketMsg " + node.toString())
+                                    getPacketList.add(node)
+                                    sortGetPacketList()
+                                    AccessibilityUtil.performClick(getPacketList.last())
+                                    getPacketList.removeAt(getPacketList.lastIndex)
+                                }
+                            }
+                        }
+                    }
+
+                    MSG_OPEN_PACKET -> {
+                        val node = msg.obj
+                        if (node != null && node is AccessibilityNodeInfo) {
+                            if (openPacketList.isEmpty()) {
+                                openPacketList.add(node)
+                                AccessibilityUtil.performClick(openPacketList.last())
+                                openPacketList.removeAt(openPacketList.lastIndex)
+                            } else {
+                                if (!NodeUtil.containNode(node, openPacketList)) {
+                                    openPacketList.add(node)
+                                    AccessibilityUtil.performClick(openPacketList.last())
+                                    openPacketList.removeAt(openPacketList.lastIndex)
+                                }
+                            }
+                        }
+                    }
+                    MSG_PACKET_DETAIL -> {
+                        val node = msg.obj
+                        if (node != null && node is PacketRecord) {
+                            node.time = System.currentTimeMillis()
+                            RpApplication.PACKET_REPOSITORY().insertPacket(node)
+                        }
+                    }
+
+                    MSG_CLICK_NEW_MESSAGE -> {
+                        Constants.isClickedNewMessageList = false
+                    }
+
+                    MSG_RESET_GOT_PACKET -> {
+                        Constants.isGotPacket = false
+                    }
+                }
+            }
+        }
+    }
+
+    private fun sendHandlerMessage(what: Int, delayedTime: Int, obj: Any? = null) {
+        if (checkMsgHandler != null) {
+            val msg = checkMsgHandler!!.obtainMessage()
+            msg!!.what = what
+            msg!!.obj = obj
+            checkMsgHandler!!.sendMessageDelayed(msg, delayedTime.toLong())
+        }
+    }
+
+    private fun sendGetPacketMsg(nodeInfo: AccessibilityNodeInfo) {
+        var delayedTime = Config.getDelayTime(false)
+        if (delayedTime > 0) {
+            delayedTime /= 2
+        }
+        sendHandlerMessage(MSG_ADD_PACKET, delayedTime, nodeInfo)
+    }
+
+
+    /**
+     * 添加打开红包，用于点击开打开红包
+     */
+    private fun sendOpenPacketMsg(nodeInfo: AccessibilityNodeInfo) {
+        var delayedTime = Config.getDelayTime(false)
+        if (delayedTime > 0) {
+            delayedTime = delayedTime / 2
+        }
+        sendHandlerMessage(MSG_OPEN_PACKET, delayedTime, nodeInfo)
+    }
+
+
+    private fun sendPacketRecordMsg(packetRecord: PacketRecord?) {
+        if (packetRecord == null) {
+            return
+        }
+        sendHandlerMessage(MSG_PACKET_DETAIL, 0, packetRecord)
+    }
+
+    private fun sendClickedNewMessageMsg() {
+        sendHandlerMessage(MSG_CLICK_NEW_MESSAGE, 500)
+    }
+
+    private fun sendResetGotPacketMsg() {
+        sendHandlerMessage(MSG_RESET_GOT_PACKET, 500)
+    }
+
+
+    /**
+     * 排序列表
+     */
+    fun sortGetPacketList() {
+        if (getPacketList.size == 1) {
+            return
+        }
+        val tempGetPacketList = ArrayList<AccessibilityNodeInfo>()
+        val nodeInfosBottom = IntArray(getPacketList.size)
+        val nodeInfosIndex = IntArray(getPacketList.size)
+        for (i in getPacketList.indices) {
+            nodeInfosBottom[i] = NodeUtil.getRectFromNodeInfo(getPacketList[i]).bottom
+            nodeInfosIndex[i] = i
+            tempGetPacketList.add(getPacketList[i])
+        }
+        getPacketList.clear()
+        ToolUtil.insertSort(nodeInfosBottom, nodeInfosIndex)
+        for (i in tempGetPacketList.indices) {
+            getPacketList.add(tempGetPacketList[nodeInfosIndex[i]])
+            Logger.i(TAG, "sortGetPacketList nodeInfoBottom[" + i + "] = "
+                    + NodeUtil.getRectFromNodeInfo(getPacketList[i]).bottom)
+        }
+    }
 
 
     fun dealWindowStateChanged(className: String, rootNode: AccessibilityNodeInfo?) {
@@ -89,7 +231,7 @@ class PacketManager {
                     Constants.setCurrentSelfPacketStatusData(Constants.W_otherStatus)
                 }
                 if (isGotPacket) {
-                    eventScheduling.sendPacketRecord(getPacketRecord(rootNode))
+                    sendPacketRecordMsg(getPacketRecord(rootNode))
                     //写入所抢的服务
                     AccessibilityUtil.performBack(WXAccessibilityService.getService())
                     isGotPacket = false
@@ -141,7 +283,7 @@ class PacketManager {
         if (isClickableConversation(rootNode)) {
             if (clickConversation(rootNode)) {
                 Constants.isClickedNewMessageList = true
-                eventScheduling.resetIsClickedNewMessageList()
+                sendClickedNewMessageMsg()
                 return
             }
         }
@@ -150,13 +292,13 @@ class PacketManager {
         if (filterHomeTabPage(rootNode)) {
             if (getPacket(rootNode, false)) {
                 Constants.isGotPacket = true
-                eventScheduling.resetIsGotPacket()
+                sendResetGotPacketMsg()
                 return
             }
         }
     }
 
-    private fun tryGetUserNamePage(rootNode: AccessibilityNodeInfo?): Boolean {
+    fun tryGetUserNamePage(rootNode: AccessibilityNodeInfo?): Boolean {
         if (rootNode == null) {
             return false
         }
@@ -173,7 +315,7 @@ class PacketManager {
         return replaceable
     }
 
-    private fun filterHomeTabPage(rootNode: AccessibilityNodeInfo?): Boolean {
+    fun filterHomeTabPage(rootNode: AccessibilityNodeInfo?): Boolean {
         if (rootNode == null) {
             return false
         }
@@ -184,7 +326,7 @@ class PacketManager {
         return false
     }
 
-    private fun isClickableConversation(rootNode: AccessibilityNodeInfo?): Boolean {
+    fun isClickableConversation(rootNode: AccessibilityNodeInfo?): Boolean {
         if (rootNode == null) {
             return false
         }
@@ -199,7 +341,7 @@ class PacketManager {
     }
 
 
-    private fun hasGotPacketTip(tipList: List<AccessibilityNodeInfo>, currentIndex: Int): Boolean {
+    fun hasGotPacketTip(tipList: List<AccessibilityNodeInfo>, currentIndex: Int): Boolean {
         if (tipList.isEmpty() || tipList.size <= currentIndex) {
             return false
         }
@@ -213,7 +355,7 @@ class PacketManager {
     /**
      * 是否是群节点
      */
-    private fun isGroupNode(pageTitle: List<AccessibilityNodeInfo>): Boolean {
+    fun isGroupNode(pageTitle: List<AccessibilityNodeInfo>): Boolean {
         if (pageTitle.isEmpty()) {
             return false
         }
@@ -226,7 +368,7 @@ class PacketManager {
     /**
      * 适用于聊天会话，聊天对话
      */
-    private fun isSelfNode(avatarList: List<AccessibilityNodeInfo>, currentIndex: Int): Boolean {
+    fun isSelfNode(avatarList: List<AccessibilityNodeInfo>, currentIndex: Int): Boolean {
         if (Config.getUserWxName().isEmpty() || avatarList.isEmpty() || avatarList.size <= currentIndex) {
             return false
         }
@@ -241,7 +383,7 @@ class PacketManager {
      * 适用于聊天会话，聊天对话
      * 过滤特定节点，如果包含关键字的话
      */
-    private fun handleKeyWords(nodes: List<AccessibilityNodeInfo>, currentIndex: Int): Boolean {
+    fun handleKeyWords(nodes: List<AccessibilityNodeInfo>, currentIndex: Int): Boolean {
         if (nodes.isEmpty() || nodes.size <= currentIndex) {
             return false
         }
@@ -266,12 +408,12 @@ class PacketManager {
         return result
     }
 
-    private fun isRedPacketNode(messageList: List<AccessibilityNodeInfo>, currentIndex: Int): Boolean {
+    private fun isRedPacketNode(messageList: List<AccessibilityNodeInfo>, currentIndex: Int, flag: String = Constants.TEXT_WX_PACKET): Boolean {
         if (messageList.isEmpty() || messageList.size <= currentIndex) {
             return false
         }
         val text = messageList[currentIndex].text.toString()
-        val result = !TextUtils.isEmpty(text) && text.contains(Constants.TEXT_WX_PACKET)
+        val result = !TextUtils.isEmpty(text) && text.contains(flag)
         Logger.i(TAG, "isRedPacketNode result = $result text($text)")
         return result
     }
@@ -325,9 +467,15 @@ class PacketManager {
         val messageList = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_PACKET_MESSAGE)
         val pageTitle = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_PAGE_TITLE)
         val packetList = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_PACKET)
+        val flagList = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_PACKET_FLAG)
 
         if (!packetList.isEmpty()) {
             for (i in packetList.indices.reversed()) {
+
+                //过滤不是红包的
+                if (!isRedPacketNode(flagList, i, Constants.TEXT_WX_PACKET_2)) {
+                    continue
+                }
 
                 //如果是自己的节点
                 //如果当前节点不是群聊，则过滤
@@ -346,7 +494,7 @@ class PacketManager {
                     continue
                 }
 
-                eventScheduling.addGetPacketList(packetList[i])
+                sendGetPacketMsg(packetList[i])
                 result = true
             }
         }
@@ -366,7 +514,7 @@ class PacketManager {
         if (!packetList.isEmpty()) {
             val item = packetList[0]
             if (item.isClickable) {
-                eventScheduling.addOpenPacketList(item)
+                sendOpenPacketMsg(item)
                 result = true
             }
         }

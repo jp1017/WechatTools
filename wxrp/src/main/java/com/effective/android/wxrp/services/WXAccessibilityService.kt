@@ -3,13 +3,10 @@ package com.effective.android.wxrp.services
 import android.accessibilityservice.AccessibilityService
 import android.app.Service
 import android.content.Intent
-import android.os.Build
 import android.view.accessibility.AccessibilityEvent
-import android.view.accessibility.AccessibilityNodeInfo
-import com.effective.android.wxrp.mode.PacketManager
+import com.effective.android.wxrp.AccessibilityManager
 import com.effective.android.wxrp.utils.Logger
 import com.effective.android.wxrp.utils.ToolUtil
-import java.util.ArrayList
 
 class WXAccessibilityService : AccessibilityService() {
 
@@ -21,7 +18,7 @@ class WXAccessibilityService : AccessibilityService() {
         }
     }
 
-    private var packetManager: PacketManager? = null
+    private var accessibilityManager: AccessibilityManager? = null
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         return Service.START_STICKY
@@ -37,11 +34,11 @@ class WXAccessibilityService : AccessibilityService() {
         when (eventType) {
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
                 Logger.i(TAG, "窗口状态改变 className = $className")
-                packetManager?.dealWindowStateChanged(className, rootNode)
+                accessibilityManager?.dealWindowStateChanged(className, rootNode)
             }
             AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> {
                 Logger.i(TAG, "窗口内容变化")
-                packetManager?.dealWindowContentChanged(className, rootNode)
+                accessibilityManager?.dealWindowContentChanged(className, rootNode)
             }
             else -> {
             }
@@ -58,8 +55,9 @@ class WXAccessibilityService : AccessibilityService() {
         Logger.i(TAG, "onServiceConnected")
         ToolUtil.toast(this, "模拟操作 服务已连接")
         service = this
-        if (packetManager == null) {
-            packetManager = PacketManager()
+        if (accessibilityManager == null) {
+            accessibilityManager = AccessibilityManager("accessbility-handler-thread")
+            accessibilityManager?.start()
         }
         super.onServiceConnected()
     }

@@ -1,4 +1,4 @@
-package com.effective.android.wxrp
+package com.effective.android.wxrp.viewmodel
 
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
@@ -13,7 +13,6 @@ class MainViewModel(private val repository: PacketRepository) : ViewModel() {
     private val viewModelJob = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
     val _all_data = MutableLiveData<List<PacketRecord>>()
-    val _add_data = MutableLiveData<PacketRecord>()
 
     companion object {
         val FACTORY = singleArgViewModelFactory(::MainViewModel)
@@ -24,17 +23,12 @@ class MainViewModel(private val repository: PacketRepository) : ViewModel() {
         viewModelJob.cancel()
     }
 
-    fun inserPacket(packetRecord: PacketRecord): Job {
-        return uiScope.launch {
-            val packetRecord = async { repository.insertPacket(packetRecord) }
-            _add_data.value = packetRecord.await()
-        }
-    }
-
     fun loadPacketList() {
-        uiScope.launch {
-            val packetRecords = async { repository.getPacketList() }
-            _all_data.value = packetRecords.await()
+        uiScope.launch (Dispatchers.Main + viewModelJob){
+            val packetRecords = async(Dispatchers.IO) {
+                return@async repository.getPacketList() }.await()
+
+            _all_data.value = packetRecords
         }
     }
 }

@@ -1,0 +1,33 @@
+package com.effective.android.wxrp.utils
+
+import android.graphics.Rect
+import android.view.accessibility.AccessibilityNodeInfo
+import java.util.ArrayList
+
+class NodeUtil {
+
+    companion object {
+
+        private const val TAG = "NodeUtil"
+
+        fun containNode(nodeInfo: AccessibilityNodeInfo,
+                                      nodeInfos: ArrayList<AccessibilityNodeInfo>): Boolean {
+            var result = false
+            for (i in nodeInfos.indices) {
+                if (nodeInfo == nodeInfos[i]) {
+                    result = true
+                    break
+                }
+            }
+            Logger.i(TAG, "isHasSameNodeInfo result = $result")
+            return result
+        }
+
+        fun getRectFromNodeInfo(nodeInfo: AccessibilityNodeInfo): Rect {
+            val rect = Rect()
+            nodeInfo.getBoundsInScreen(rect)
+            return rect
+        }
+
+    }
+}

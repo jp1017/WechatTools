@@ -22,7 +22,6 @@ import com.effective.android.wxrp.R
 import com.effective.android.wxrp.store.Config
 import com.effective.android.wxrp.utils.Logger
 import com.effective.android.wxrp.utils.ToolUtil
-import com.effective.android.wxrp.view.dialog.AddTagDialog
 import kotlinx.android.synthetic.main.fragment_setting.*
 
 class SettingFragment : Fragment() {

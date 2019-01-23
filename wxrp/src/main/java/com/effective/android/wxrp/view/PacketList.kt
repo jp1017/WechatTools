@@ -1,6 +1,7 @@
 package com.effective.android.wxrp.view
 
 import android.content.Context
+import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.AttributeSet
 import android.view.LayoutInflater
@@ -24,10 +25,12 @@ class PacketList : RecyclerView {
 
     private fun initView(context: Context) {
         adapter = PacketAdapter(context)
+        this.setAdapter(adapter)
+        this.layoutManager = LinearLayoutManager(context)
     }
 
-    fun addPackets(packetList: List<PacketRecord>?) {
-        adapter!!.addPackets(packetList)
+    fun setPackets(packetList: List<PacketRecord>?) {
+        adapter!!.setPackets(packetList)
     }
 
     fun addPacket(packet: PacketRecord?) {
@@ -44,10 +47,11 @@ class PacketAdapter : RecyclerView.Adapter<PacketHolder> {
         this.context = context
     }
 
-    fun addPackets(packetList: List<PacketRecord>?) {
+    fun setPackets(packetList: List<PacketRecord>?) {
         if (packetList == null || packetList.isEmpty()) {
             return
         }
+        this.packetList.clear()
         this.packetList.addAll(packetList!!)
         notifyDataSetChanged()
     }

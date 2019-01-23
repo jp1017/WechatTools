@@ -5,7 +5,6 @@ import android.app.KeyguardManager
 import android.content.Context
 import android.os.Build
 import android.os.PowerManager
-import android.support.v4.app.NotificationManagerCompat
 import android.widget.Toast
 import com.effective.android.wxrp.Constants
 import java.text.SimpleDateFormat
@@ -50,15 +49,15 @@ class ToolUtil private constructor() {
             return false
         }
 
-        fun isNotificationListenerServiceEnabled(context: Context): Boolean {
-            val packageNames = NotificationManagerCompat.getEnabledListenerPackages(context)
-            if (packageNames.contains(context.packageName)) {
-                Logger.i(TAG, "isNotificationListenerServiceEnabled = true")
-                return true
-            }
-            Logger.i(TAG, "isNotificationListenerServiceEnabled = false")
-            return false
-        }
+//        fun isNotificationListenerServiceEnabled(context: Context): Boolean {
+//            val packageNames = NotificationManagerCompat.getEnabledListenerPackages(context)
+//            if (packageNames.contains(context.packageName)) {
+//                Logger.i(TAG, "isNotificationListenerServiceEnabled = true")
+//                return true
+//            }
+//            Logger.i(TAG, "isNotificationListenerServiceEnabled = false")
+//            return false
+//        }
 
         fun wakeAndUnlock(context: Context) {
             Logger.i(TAG, "wakeAndUnlock")
@@ -188,6 +187,28 @@ class ToolUtil private constructor() {
                 "$dataString $timeStringBy24"
             } else {
                 dataString
+            }
+        }
+
+        fun insertSort(a: IntArray, b: IntArray) {
+            // nodeInofs的数量一般小于10，插入排序效率较高
+            var i: Int
+            var j: Int
+            var insertNoteA: Int
+            var insertNoteB: Int             // 要插入的数据
+            i = 1
+            while (i < a.size) {                // 从数组的第二个元素开始循环将数组中的元素插入
+                insertNoteA = a[i]                         // 设置数组中的第2个元素为第一次循环要插入的数据
+                insertNoteB = b[i]
+                j = i - 1
+                while (j >= 0 && insertNoteA < a[j]) {
+                    a[j + 1] = a[j]             // 如果要插入的元素小于第j个元素,就将第j个元素向后移动
+                    b[j + 1] = b[j]
+                    j--
+                }
+                a[j + 1] = insertNoteA          // 直到要插入的元素不小于第j个元素,将insertNote插入到数组中
+                b[j + 1] = insertNoteB
+                i++
             }
         }
     }

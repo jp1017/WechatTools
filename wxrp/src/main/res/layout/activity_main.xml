@@ -150,10 +150,9 @@
     <com.effective.android.wxrp.view.PacketList
         android:id="@+id/packet_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@+id/necessary_layout"
         android:layout_margin="20dp"
-        android:background="@android:color/holo_red_dark"
         android:visibility="gone" />
 
     <FrameLayout

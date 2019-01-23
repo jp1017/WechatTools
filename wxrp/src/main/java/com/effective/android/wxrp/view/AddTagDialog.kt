@@ -1,4 +1,4 @@
-package com.effective.android.wxrp.view.dialog
+package com.effective.android.wxrp.view
 
 import android.app.Dialog
 import android.content.Context

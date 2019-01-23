@@ -14,9 +14,8 @@ import com.effective.android.wxrp.store.Config
 import com.effective.android.wxrp.utils.ToolUtil
 import kotlinx.android.synthetic.main.activity_main.*
 import android.content.ComponentName
-import com.effective.android.wxrp.MainViewModel
-import com.effective.android.wxrp.store.db.PacketRecordDataBase
-import com.effective.android.wxrp.store.db.PacketRepository
+import com.effective.android.wxrp.viewmodel.MainViewModel
+import com.effective.android.wxrp.RpApplication
 
 
 class MainActivity : AppCompatActivity() {
@@ -37,9 +36,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initData() {
-        val database = PacketRecordDataBase.getInstance(this)
-        val packetRepository = PacketRepository(database.packetRecordDao())
-        mainViewModel = ViewModelProviders.of(this, MainViewModel.FACTORY(packetRepository)).get(MainViewModel::class.java)
+        mainViewModel = ViewModelProviders.of(this, MainViewModel.FACTORY(RpApplication.PACKET_REPOSITORY())).get(MainViewModel::class.java)
     }
 
     private fun initNecessaryState() {
@@ -63,6 +60,7 @@ class MainActivity : AppCompatActivity() {
 
         val openSetting = hasOpenAccessibility && !TextUtils.isEmpty(userName)
         setting.visibility = if (openSetting) {
+            mainViewModel!!.loadPacketList()
             View.VISIBLE
         } else {
             View.GONE
@@ -103,16 +101,10 @@ class MainActivity : AppCompatActivity() {
             ToolUtil.toast(this, getString(R.string.setting_get_user_name_question), 5000)
         }
 
-        //监听数据源变化
-        mainViewModel!!._add_data.observe(this, Observer { value ->
-            value?.let {
-                packet_list.addPacket(it)
-            }
-        })
 
         mainViewModel!!._all_data.observe(this, Observer { value ->
             value?.let {
-                packet_list.addPackets(it)
+                packet_list.setPackets(it)
             }
         })
     }

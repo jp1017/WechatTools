@@ -11,7 +11,7 @@
     <string name="setting_open_action">前往开启</string>
     <string name="setting_get_action">前往获取</string>
     <string name="setting_get_again_action">重新获取</string>
-    <string name="setting_get_user_name_question">点击获取按钮前往微信，停留在【首页-我】页面后程序自动获取微信昵称。获取成功后会自动提示</string>
+    <string name="setting_get_user_name_question">点击获取按钮前往微信，停留在【微信-首页】后程序自动获取微信昵称。获取成功后会自动提示</string>
 
     <string name="setting_accessibility_tip">开启自动模拟点击行为（必须）</string>
     <string name="setting_more_tip">插件正在运行...更多高级配置请点击右上角设置</string>
@@ -41,7 +41,7 @@
 
 
     <string name="app_description">By Yummylau</string>
-    <string name="service_accessibility">红包自动按键服务</string>
+    <string name="service_accessibility">微信红包插件</string>
     <string name="service_lable2">红包通知栏服务</string>
     <string name="main_activity_descr">
         注意：\n

@@ -45,8 +45,10 @@ open class Constants internal constructor() {
         val ID_WID_CHAT_DIALOG_AVATAR = "com.tencent.mm:id/nj"              // 聊天页面 - 聊天列表 - 红包item - 头像
         val ID_WID_CHAT_DIALOG_PACKET = "com.tencent.mm:id/ao4"             // 聊天页面 - 聊天列表 - 红包item - 包括下面
         val ID_WID_CHAT_DIALOG_PACKET_MESSAGE = "com.tencent.mm:id/apd"     // 聊天页面 - 聊天列表 - 红包item - 祝福语比如说恭喜发财
+        val ID_WID_CHAT_DIALOG_PACKET_FLAG = "com.tencent.mm:id/apf"        // 聊天页面 - 聊天列表 - 红包item - 底部微信红包
         val ID_WID_CHAT_DIALOG_PACKET_TIP = "com.tencent.mm:id/ape"         // 聊天页面 - 聊天列表 - 红包item - 红包状态比如说领取之后显示已领取
         val ID_WID_CHAT_DIALOG_PAGE_TITLE = "com.tencent.mm:id/jw"          // 聊天页面 - 聊天列表 - 个人聊天则是昵称，群聊天则是群昵称
+
 
         /**
          * 首页-微信tab 聊天会话 id
@@ -68,6 +70,7 @@ open class Constants internal constructor() {
          * 校验文本
          */
         val TEXT_WX_PACKET = "[微信红包]"
+        val TEXT_WX_PACKET_2 = "微信红包"
         val TEXT_TAB_TITLE_WEIXIN= "微信"
         val TEXT_TAB_TITLE_CHATLIST= "通讯录"
         val TEXT_TAB_TITLE_DISC = "发现"
