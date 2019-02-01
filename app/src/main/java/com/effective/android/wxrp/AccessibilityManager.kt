@@ -342,13 +342,13 @@ class AccessibilityManager(string: String) : HandlerThread(string) {
     }
 
 
-    fun hasGotPacketTip(tipList: List<AccessibilityNodeInfo>, currentIndex: Int): Boolean {
-        if (tipList.isEmpty() || tipList.size <= currentIndex) {
+    fun hasGotPacketTip(tipList: List<AccessibilityNodeInfo>): Boolean {
+        if (tipList.isEmpty()) {
             return false
         }
-        val actionText = tipList[currentIndex].text
+        val actionText = tipList[0].text
         var result = !TextUtils.isEmpty(actionText) && !actionText.isEmpty()
-        Logger.i(TAG, "hasGotPacketTip($currentIndex) ： $result, 当前红包提示($actionText)")
+        Logger.i(TAG, "hasGotPacketTip ： $result, 当前红包提示($actionText)")
         return result
     }
 
@@ -464,7 +464,6 @@ class AccessibilityManager(string: String) : HandlerThread(string) {
         }
         var result = false
         val avatarList = rootNote.findAccessibilityNodeInfosByViewId(VersionManager.chatPagerItemAvatatId())
-        val tipList = rootNote.findAccessibilityNodeInfosByViewId(VersionManager.chatPagerItemPacketTipId())
         val messageList = rootNote.findAccessibilityNodeInfosByViewId(VersionManager.chatPagerItemPacketMessageId())
         val pageTitle = rootNote.findAccessibilityNodeInfosByViewId(VersionManager.chatPagerTitleId())
         val packetList = rootNote.findAccessibilityNodeInfosByViewId(VersionManager.chatPagerItemPacketId())
@@ -485,8 +484,9 @@ class AccessibilityManager(string: String) : HandlerThread(string) {
                     continue
                 }
 
+                val tipList = packetList[i].findAccessibilityNodeInfosByViewId(VersionManager.chatPagerItemPacketTipId())
                 //过滤已经抢过的，已过期等等
-                if (hasGotPacketTip(tipList, i)) {
+                if (hasGotPacketTip(tipList)) {
                     continue
                 }
 

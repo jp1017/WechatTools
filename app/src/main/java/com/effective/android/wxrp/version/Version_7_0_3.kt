@@ -16,38 +16,38 @@ class Version_7_0_3 : VersionInfo {
     /**
      * 红包界面 id
      */
-    val ID_PACKET_DIALOG_OPEN = "com.tencent.mm:id/cv0"       // 聊天页面 - 红包对话框 - 开
+    val ID_PACKET_DIALOG_OPEN = "com.tencent.mm:id/cyf"       // 聊天页面 - 红包对话框 - 开
 
     /**
      * 红包详情页 id
      */
-    val ID_PACKET_DETAIL_POST_USER = "com.tencent.mm:id/cqr"       // 红包详情页 - 发送者昵称
-    val ID_PACKET_DETAIL_POST_NUM = "com.tencent.mm:id/cqv"           // 红包详情页 - 红包金额
+    val ID_PACKET_DETAIL_POST_USER = "com.tencent.mm:id/csu"       // 红包详情页 - 发送者昵称
+    val ID_PACKET_DETAIL_POST_NUM = "com.tencent.mm:id/csy"           // 红包详情页 - 红包金额
 
 
     /**
      * 聊天页面 id
      */
-    val ID_CHAT_PAGER_ITEM = "com.tencent.mm:id/a9"                //聊天界面 - 聊天列表 - 对话item
-    val ID_CHAT_PAGER_ITEM_AVATAR = "com.tencent.mm:id/nj"              // 聊天页面 - 聊天列表 - 红包item - 头像
-    val ID_CHAT_PAGER_ITEM_PACKET = "com.tencent.mm:id/ao4"             // 聊天页面 - 聊天列表 - 红包item - 包括下面
-    val ID_CHAT_PAGER_ITEM_PACKET_MESSAGE = "com.tencent.mm:id/apd"     // 聊天页面 - 聊天列表 - 红包item - 祝福语比如说恭喜发财
-    val ID_CHAT_PAGER_ITEM_PACKET_FLAG = "com.tencent.mm:id/apf"        // 聊天页面 - 聊天列表 - 红包item - 底部微信红包
-    val ID_CHAT_PAGER_ITEM_PACKET_TIP = "com.tencent.mm:id/ape"         // 聊天页面 - 聊天列表 - 红包item - 红包状态比如说领取之后显示已领取
-    val ID_CHAT_PAGER_TITLE = "com.tencent.mm:id/jw"          // 聊天页面 - 聊天列表 - 个人聊天则是昵称，群聊天则是群昵称
+    val ID_CHAT_PAGER_ITEM = "com.tencent.mm:id/aa"                //聊天界面 - 聊天列表 - 对话item
+    val ID_CHAT_PAGER_ITEM_AVATAR = "com.tencent.mm:id/ns"              // 聊天页面 - 聊天列表 - 红包item - 头像
+    val ID_CHAT_PAGER_ITEM_PACKET = "com.tencent.mm:id/aou"             // 聊天页面 - 聊天列表 - 红包item - 包括下面
+    val ID_CHAT_PAGER_ITEM_PACKET_MESSAGE = "com.tencent.mm:id/aq5"     // 聊天页面 - 聊天列表 - 红包item - 祝福语比如说恭喜发财
+    val ID_CHAT_PAGER_ITEM_PACKET_FLAG = "com.tencent.mm:id/aq7"        // 聊天页面 - 聊天列表 - 红包item - 底部微信红包
+    val ID_CHAT_PAGER_ITEM_PACKET_TIP = "com.tencent.mm:id/aq6"         // 聊天页面 - 聊天列表 - 红包item - 红包状态比如说领取之后显示已领取
+    val ID_CHAT_PAGER_TITLE = "com.tencent.mm:id/k3"          // 聊天页面 - 聊天列表 - 个人聊天则是昵称，群聊天则是群昵称
 
     /**
      * 首页-微信tab 聊天会话 id
      */
-    val ID_HOME_CHAT_LIST_ITEM = "com.tencent.mm:id/b4m"                     // 首页列表 - 聊天会话 - item id
-    val ID_HOME_CHAT_LIST_ITEM_MESSAGE = "com.tencent.mm:id/b4q"            // 微信列表 每一个item中的文本id
-    val ID_WID_CHAT_LIST_TITLE_TEXT = "com.tencent.mm:id/b4o"            // 微信列表 每一个item中的会话名字
+    val ID_HOME_CHAT_LIST_ITEM = "com.tencent.mm:id/b5m"                     // 首页列表 - 聊天会话 - item id
+    val ID_HOME_CHAT_LIST_ITEM_MESSAGE = "com.tencent.mm:id/b5q"            // 微信列表 每一个item中的文本id
+    val ID_WID_CHAT_LIST_TITLE_TEXT = "com.tencent.mm:id/b5o"            // 微信列表 每一个item中的会话名字
 
     /**
      * 首页-我tab
      */
-    val ID_HOME_USER_PAGER_NICK = "com.tencent.mm:id/a5b"                  // 我的页面，微信昵称
-    val ID_HOME_USER_PAGER_WEICHATNUM = "com.tencent.mm:id/d7y"            // 我的页面，微信号
+    val ID_HOME_USER_PAGER_NICK = "com.tencent.mm:id/a63"                  // 我的页面，微信昵称
+    val ID_HOME_USER_PAGER_WEICHATNUM = "com.tencent.mm:id/dag"            // 我的页面，微信号
 
     val ID_HOME_TAB_TITLE = "android:id/text1"              // 首页4个tab的标题，存在与微信tab，通讯录tab，发现tab，用于过滤没有必要的轮训
 
