@@ -1,4 +1,4 @@
-package com.effective.android.kotlinlearn;
+package com.effective.android.wxrp;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
