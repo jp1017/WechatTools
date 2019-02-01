@@ -3,6 +3,7 @@
 #### 微信红包插件
 
 **支持版本**
+
 目前只支持的微信版本：`7.0.0`, `7.0.3`
 
 **前置行为**
@@ -20,7 +21,7 @@
 
 由于互联网禁止apk上传生成二维码, 文件存于百度云盘, 建议使用浏览器扫描。
 
-<img src="./readme/wechattool_3.jpg" width = "300" height = "300" alt="图片名称" align=center />
+<img src="./readme/wechattool_3.png" width = "300" height = "300" alt="图片名称" align=center />
 
 **效果展示**
 
