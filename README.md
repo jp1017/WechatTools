@@ -20,11 +20,11 @@
 
 由于互联网禁止apk上传生成二维码, 文件存于百度云盘, 建议使用浏览器扫描。
 
-<img src="./wechattool_3.jpg" width = "300" height = "300" alt="图片名称" align=center />
+<img src="./readme/wechattool_3.jpg" width = "300" height = "300" alt="图片名称" align=center />
 
 **效果展示**
 
-<img src="./wechattool_1.jpg" width = "540" height = "960" alt="图片名称" align=center />
+<img src="./readme/wechattool_1.jpg" width = "540" height = "960" alt="图片名称" align=center />
 
-<img src="./wechattool_2.jpg" width = "540" height = "960" alt="图片名称" align=center />
+<img src="./readme/wechattool_2.jpg" width = "540" height = "960" alt="图片名称" align=center />
 
