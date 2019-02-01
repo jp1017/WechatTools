@@ -14,11 +14,11 @@ class AddTagDialog constructor(context: Context, commitListener: CommitListener)
     init {
         val root: View = LayoutInflater.from(context).inflate(R.layout.dialog_add_tag, null, false)
         setContentView(root)
-        window.setGravity(Gravity.CENTER)
-        val lp = window.attributes
-        lp.width = WindowManager.LayoutParams.WRAP_CONTENT
-        lp.height = WindowManager.LayoutParams.WRAP_CONTENT
-        window.attributes = lp
+        window?.setGravity(Gravity.CENTER)
+        val lp = window?.attributes
+        lp?.width = WindowManager.LayoutParams.WRAP_CONTENT
+        lp?.height = WindowManager.LayoutParams.WRAP_CONTENT
+        window?.attributes = lp
         setCanceledOnTouchOutside(true)
 
         layout_left.setOnClickListener {

@@ -8,7 +8,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.text.TextUtils
 import android.view.View
-import com.effective.android.wxrp.Constants
+import com.effective.android.wxrp.version.VersionManager
 import com.effective.android.wxrp.R
 import com.effective.android.wxrp.store.Config
 import com.effective.android.wxrp.utils.ToolUtil
@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initNecessaryState() {
-        val hasOpenAccessibility = ToolUtil.isServiceRunning(this, Constants.PACKAGE_SELF_APPLICATION + "." + Constants.CLASS_ACCESSBILITY)
+        val hasOpenAccessibility = ToolUtil.isServiceRunning(this, VersionManager.PACKAGE_SELF_APPLICATION + "." + VersionManager.CLASS_ACCESSBILITY)
         if (hasOpenAccessibility) {
             accessibility_tip.text = getString(R.string.setting_open_accessibility_tip)
             open_accessibility.visibility = View.GONE
@@ -79,21 +79,26 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
         get_user_name.setOnClickListener {
-            val hasOpenAccessibility = ToolUtil.isServiceRunning(this, Constants.PACKAGE_SELF_APPLICATION + "." + Constants.CLASS_ACCESSBILITY)
+            val hasOpenAccessibility = ToolUtil.isServiceRunning(this, VersionManager.PACKAGE_SELF_APPLICATION + "." + VersionManager.CLASS_ACCESSBILITY)
             if (!hasOpenAccessibility) {
                 ToolUtil.toast(this, "请先开启自动模拟点击服务")
                 return@setOnClickListener
             }
             if (ToolUtil.isWeixinAvilible(this)) {
-                val intent = Intent()
-                val cmp = ComponentName(Constants.PACKAFEGE_WECHAT, Constants.CLASS_LAUNCHER)
-                intent.action = Intent.ACTION_MAIN
-                intent.addCategory(Intent.CATEGORY_LAUNCHER)
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                intent.component = cmp
-                startActivity(intent)
+                if(ToolUtil.supportWeChatVersion(ToolUtil.getWeChatVersion(this))){
+                    val intent = Intent()
+                    val cmp = ComponentName(VersionManager.PACKAFEGE_WECHAT, VersionManager.launcherClass())
+                    intent.action = Intent.ACTION_MAIN
+                    intent.addCategory(Intent.CATEGORY_LAUNCHER)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    intent.component = cmp
+                    startActivity(intent)
+                }else{
+                    ToolUtil.toast(this, "当前微信版本不支持！")
+                }
+
             } else {
-                ToolUtil.toast(this, "当前手机未安装微信，请下载微信7.0！")
+                ToolUtil.toast(this, "当前手机未安装微信，请下载 7.0.0/7.0.3 版本微信")
             }
         }
 

@@ -9,11 +9,10 @@ import android.os.Build
 import android.os.IBinder
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
-import android.widget.Toast
-import com.effective.android.wxrp.*
 import com.effective.android.wxrp.utils.AccessibilityUtil
 import com.effective.android.wxrp.utils.Logger
 import com.effective.android.wxrp.utils.ToolUtil
+import com.effective.android.wxrp.version.VersionManager
 
 /**
  * 通知栏service
@@ -41,20 +40,20 @@ class WXNotificationService: NotificationListenerService() {
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
-        if (Constants.isGotNotification || Constants.isClickedNewMessageList || Constants.isGotPacket) {
+        if (VersionManager.isGotNotification || VersionManager.isClickedNewMessageList || VersionManager.isGotPacket) {
             Logger.i(TAG, "onNotificationPosted: return \n"
-                    + "WQ.isGotNotification = " + Constants.isGotNotification
-                    + "WQ.isClickedNewMessageList = " + Constants.isClickedNewMessageList
-                    + "WQ.isGotPacket = " + Constants.isGotPacket)
+                    + "WQ.isGotNotification = " + VersionManager.isGotNotification
+                    + "WQ.isClickedNewMessageList = " + VersionManager.isClickedNewMessageList
+                    + "WQ.isGotPacket = " + VersionManager.isGotPacket)
             return
         }
         Logger.i(TAG, "onNotificationPosted: " + sbn.packageName
                 + " " + sbn.notification.extras.getString(Notification.EXTRA_TEXT))
         if (ToolUtil.isLockScreen(this.application)) {
             ToolUtil.wakeAndUnlock(this.application)
-            Constants.isPreviouslyLockScreen = true
+            VersionManager.isPreviouslyLockScreen = true
         }
-        if (AccessibilityUtil.openNotification(sbn, Constants.PACKAFEGE_WECHAT, Constants.TEXT_WX_PACKET)) {
+        if (AccessibilityUtil.openNotification(sbn, VersionManager.PACKAFEGE_WECHAT, VersionManager.TEXT_WX_PACKET)) {
             // WQ.isGotNotification = true;
             /* handler.postDelayed(new Runnable() {
                 @Override
@@ -94,11 +93,11 @@ class WXNotificationService: NotificationListenerService() {
         } else {
             val pm = context.packageManager
             pm.setComponentEnabledSetting(
-                    ComponentName(context, WXNotificationService::class.java!!),
+                    ComponentName(context, WXNotificationService::class.java),
                     PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
 
             pm.setComponentEnabledSetting(
-                    ComponentName(context, WXNotificationService::class.java!!),
+                    ComponentName(context, WXNotificationService::class.java),
                     PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
         }
     }

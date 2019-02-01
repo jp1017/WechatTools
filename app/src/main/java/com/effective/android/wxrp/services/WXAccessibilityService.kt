@@ -5,6 +5,7 @@ import android.app.Service
 import android.content.Intent
 import android.view.accessibility.AccessibilityEvent
 import com.effective.android.wxrp.AccessibilityManager
+import com.effective.android.wxrp.version.VersionManager
 import com.effective.android.wxrp.utils.Logger
 import com.effective.android.wxrp.utils.ToolUtil
 
@@ -26,6 +27,9 @@ class WXAccessibilityService : AccessibilityService() {
 
     override fun onAccessibilityEvent(accessibilityEvent: AccessibilityEvent) {
 
+        if (!VersionManager.runningPlus()) {
+            return
+        }
         val eventType = accessibilityEvent.eventType
         val className = accessibilityEvent.className.toString()
         val rootNode = rootInActiveWindow
@@ -38,7 +42,7 @@ class WXAccessibilityService : AccessibilityService() {
             }
             AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> {
                 Logger.i(TAG, "窗口内容变化")
-                accessibilityManager?.dealWindowContentChanged(className, rootNode)
+                accessibilityManager?.dealWindowContentChanged(rootNode)
             }
             else -> {
             }

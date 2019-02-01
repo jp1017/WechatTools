@@ -52,7 +52,7 @@ class PacketAdapter : RecyclerView.Adapter<PacketHolder> {
             return
         }
         this.packetList.clear()
-        this.packetList.addAll(packetList!!)
+        this.packetList.addAll(packetList)
         notifyDataSetChanged()
     }
 
@@ -60,7 +60,7 @@ class PacketAdapter : RecyclerView.Adapter<PacketHolder> {
         if (packet == null) {
             return
         }
-        this.packetList.add(packet!!)
+        this.packetList.add(packet)
         notifyDataSetChanged()
     }
 

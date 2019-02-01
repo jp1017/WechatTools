@@ -25,7 +25,6 @@
             android:lineSpacingExtra="10dp"
             android:textColor="@color/text_primary_color"
             android:textSize="18sp"
-            android:visibility="gone"
             android:text="@string/add_tag_tip"
             tools:text="关注成功"
             tools:visibility="visible" />

@@ -3,7 +3,6 @@ package com.effective.android.wxrp
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Message
-import android.support.annotation.MainThread
 import android.text.TextUtils
 import android.view.accessibility.AccessibilityNodeInfo
 import com.effective.android.wxrp.services.WXAccessibilityService
@@ -13,6 +12,7 @@ import com.effective.android.wxrp.utils.AccessibilityUtil
 import com.effective.android.wxrp.utils.Logger
 import com.effective.android.wxrp.utils.NodeUtil
 import com.effective.android.wxrp.utils.ToolUtil
+import com.effective.android.wxrp.version.VersionManager
 import java.util.ArrayList
 
 class AccessibilityManager(string: String) : HandlerThread(string) {
@@ -82,11 +82,11 @@ class AccessibilityManager(string: String) : HandlerThread(string) {
                     }
 
                     MSG_CLICK_NEW_MESSAGE -> {
-                        Constants.isClickedNewMessageList = false
+                        VersionManager.isClickedNewMessageList = false
                     }
 
                     MSG_RESET_GOT_PACKET -> {
-                        Constants.isGotPacket = false
+                        VersionManager.isGotPacket = false
                     }
                 }
             }
@@ -96,7 +96,7 @@ class AccessibilityManager(string: String) : HandlerThread(string) {
     private fun sendHandlerMessage(what: Int, delayedTime: Int, obj: Any? = null) {
         if (checkMsgHandler != null) {
             val msg = checkMsgHandler!!.obtainMessage()
-            msg!!.what = what
+            msg.what = what
             msg!!.obj = obj
             checkMsgHandler!!.sendMessageDelayed(msg, delayedTime.toLong())
         }
@@ -172,7 +172,7 @@ class AccessibilityManager(string: String) : HandlerThread(string) {
         }
         when (className) {
             //如果当前是聊天窗口
-            Constants.CLASS_LAUNCHER -> {
+            VersionManager.launcherClass() -> {
                 Logger.i(TAG, "dealWindowStateChanged : 当前在首页")
 
                 if (tryGetUserNamePage(rootNode)) {
@@ -180,8 +180,8 @@ class AccessibilityManager(string: String) : HandlerThread(string) {
                 }
 
                 if (filterHomeTabPage(rootNode)) {
-                    if (Config.isOpenGetSelfPacket() && Constants.currentSelfPacketStatus == Constants.W_openedPayStatus) {
-                        Constants.setCurrentSelfPacketStatusData(Constants.W_intoChatDialogStatus)
+                    if (Config.isOpenGetSelfPacket() && VersionManager.currentSelfPacketStatus == VersionManager.W_openedPayStatus) {
+                        VersionManager.setCurrentSelfPacketStatusData(VersionManager.W_intoChatDialogStatus)
                         getPacket(rootNode, true)
                     } else {
                         getPacket(rootNode, false)
@@ -190,45 +190,45 @@ class AccessibilityManager(string: String) : HandlerThread(string) {
             }
 
             //红包页面
-            Constants.CLASS_PACKET_RECEIVE -> {
+            VersionManager.packetReceiveClass() -> {
                 Logger.i(TAG, "dealWindowStateChanged className: 当前已打开红包")
-                if (Config.isOpenGetSelfPacket() && Constants.currentSelfPacketStatus == Constants.W_intoChatDialogStatus) {
+                if (Config.isOpenGetSelfPacket() && VersionManager.currentSelfPacketStatus == VersionManager.W_intoChatDialogStatus) {
                     if (openPacket(rootNode)) {
-                        Constants.setCurrentSelfPacketStatusData(Constants.W_gotSelfPacketStatus)
+                        VersionManager.setCurrentSelfPacketStatusData(VersionManager.W_gotSelfPacketStatus)
                     }
                 } else {
                     if (openPacket(rootNode)) {
                         isGotPacket = true
                     }
                 }
-                Constants.isClickedNewMessageList = false
-                Constants.isGotPacket = false
+                VersionManager.isClickedNewMessageList = false
+                VersionManager.isGotPacket = false
             }
 
             //红包发送页面
-            Constants.CLASS_PACKET_SEND -> {
+            VersionManager.packetSendClass() -> {
                 Logger.i(TAG, "dealWindowStateChanged : 当前在红包发送页面")
-                if (Constants.currentSelfPacketStatus <= Constants.W_otherStatus) {
-                    Constants.setCurrentSelfPacketStatusData(Constants.W_openedPacketSendStatus)
+                if (VersionManager.currentSelfPacketStatus <= VersionManager.W_otherStatus) {
+                    VersionManager.setCurrentSelfPacketStatusData(VersionManager.W_openedPacketSendStatus)
                 }
             }
 
 
             //红包支付页面
-            Constants.CLASS_PACKET_PAY -> {
+            VersionManager.packetPayClass() -> {
                 Logger.i(TAG, "dealWindowStateChanged : 当前在红包支付页面")
-                if (Constants.currentSelfPacketStatus == Constants.W_openedPacketSendStatus) {
-                    Constants.setCurrentSelfPacketStatusData(Constants.W_openedPayStatus)
+                if (VersionManager.currentSelfPacketStatus == VersionManager.W_openedPacketSendStatus) {
+                    VersionManager.setCurrentSelfPacketStatusData(VersionManager.W_openedPayStatus)
                 }
             }
 
 
             //红包详情页
-            Constants.CLASS_PACKET_DETAIL -> {
+            VersionManager.packetDetailClass() -> {
                 Logger.i(TAG, "dealWindowStateChanged : 当前在红包详情页")
-                if (Constants.currentSelfPacketStatus != Constants.W_otherStatus) {
+                if (VersionManager.currentSelfPacketStatus != VersionManager.W_otherStatus) {
                     AccessibilityUtil.performBack(WXAccessibilityService.getService())
-                    Constants.setCurrentSelfPacketStatusData(Constants.W_otherStatus)
+                    VersionManager.setCurrentSelfPacketStatusData(VersionManager.W_otherStatus)
                 }
                 if (isGotPacket) {
                     sendPacketRecordMsg(getPacketRecord(rootNode))
@@ -241,18 +241,19 @@ class AccessibilityManager(string: String) : HandlerThread(string) {
         }
     }
 
-    fun getPacketRecord(rootNode: AccessibilityNodeInfo?): PacketRecord? {
+    private fun getPacketRecord(rootNode: AccessibilityNodeInfo?): PacketRecord? {
         Logger.i(TAG, "getPacketRecord")
         if (rootNode == null) {
             Logger.i(TAG, "getPakcetRecord-rootNode : null")
-        }
-        val postUser = rootNode!!.findAccessibilityNodeInfosByViewId(Constants.ID_PACKET_DETAIL_POST_USER_NAME)
-        val number = rootNode!!.findAccessibilityNodeInfosByViewId(Constants.ID_PACKET_DETAIL_PACKET_NUM)
-        if (!postUser.isEmpty() && !number.isEmpty()) {
-            val record = PacketRecord()
-            record.num = number[0]?.text.toString().toFloat()
-            record.postUser = postUser[0]?.text.toString()
-            return record
+        } else {
+            val postUser = rootNode.findAccessibilityNodeInfosByViewId(VersionManager.packetDetailPostUserId())
+            val number = rootNode.findAccessibilityNodeInfosByViewId(VersionManager.packetDetailPostNumId())
+            if (!postUser.isEmpty() && !number.isEmpty()) {
+                val record = PacketRecord()
+                record.num = number[0]?.text.toString().toFloat()
+                record.postUser = postUser[0]?.text.toString()
+                return record
+            }
         }
         return null
     }
@@ -261,7 +262,7 @@ class AccessibilityManager(string: String) : HandlerThread(string) {
      * 如果在聊天会话列表，则判断当前是否需要点击消息
      * 如果在聊天页面，则判断是否需要获取红包
      */
-    fun dealWindowContentChanged(className: String, rootNode: AccessibilityNodeInfo?) {
+    fun dealWindowContentChanged(rootNode: AccessibilityNodeInfo?) {
         Logger.i(TAG, "dealWindowContentChanged")
         if (rootNode == null) {
             Logger.i(TAG, "dealWindowStateChanged-rootNode : null")
@@ -274,15 +275,15 @@ class AccessibilityManager(string: String) : HandlerThread(string) {
 
         if (openPacket(rootNode)) {
             isGotPacket = true
-            Constants.isClickedNewMessageList = false
-            Constants.isGotPacket = false
+            VersionManager.isClickedNewMessageList = false
+            VersionManager.isGotPacket = false
         }
 
         //如果不是首页，则默认不需要点击会话或者获取红包
         //只有首页第一个tab-微信才需要检测点击
         if (isClickableConversation(rootNode)) {
             if (clickConversation(rootNode)) {
-                Constants.isClickedNewMessageList = true
+                VersionManager.isClickedNewMessageList = true
                 sendClickedNewMessageMsg()
                 return
             }
@@ -291,7 +292,7 @@ class AccessibilityManager(string: String) : HandlerThread(string) {
         //只有聊天详情页才需要查询红包
         if (filterHomeTabPage(rootNode)) {
             if (getPacket(rootNode, false)) {
-                Constants.isGotPacket = true
+                VersionManager.isGotPacket = true
                 sendResetGotPacketMsg()
                 return
             }
@@ -302,7 +303,7 @@ class AccessibilityManager(string: String) : HandlerThread(string) {
         if (rootNode == null) {
             return false
         }
-        val tabTitle = rootNode.findAccessibilityNodeInfosByViewId(Constants.ID_USER_NICK)               //会话item
+        val tabTitle = rootNode.findAccessibilityNodeInfosByViewId(VersionManager.homeUserPagerNickId())               //会话item
         if (tabTitle.isEmpty()) {
             return false
         }
@@ -319,7 +320,7 @@ class AccessibilityManager(string: String) : HandlerThread(string) {
         if (rootNode == null) {
             return false
         }
-        val tabTitle = rootNode.findAccessibilityNodeInfosByViewId(Constants.ID_HOME_TITLE)               //会话item
+        val tabTitle = rootNode.findAccessibilityNodeInfosByViewId(VersionManager.homeTabTitleId())               //会话item
         if (tabTitle.isEmpty()) {
             return true
         }
@@ -330,12 +331,12 @@ class AccessibilityManager(string: String) : HandlerThread(string) {
         if (rootNode == null) {
             return false
         }
-        val tabTitle = rootNode.findAccessibilityNodeInfosByViewId(Constants.ID_HOME_TITLE)               //会话item
+        val tabTitle = rootNode.findAccessibilityNodeInfosByViewId(VersionManager.homeTabTitleId())               //会话item
         if (tabTitle.isEmpty()) {
             return false
         }
         val actionText = tabTitle[0].text
-        val result = !TextUtils.isEmpty(actionText) && actionText.startsWith(Constants.TEXT_TAB_TITLE_WEIXIN)
+        val result = !TextUtils.isEmpty(actionText) && actionText.startsWith(VersionManager.TEXT_TAB_TITLE_WEIXIN)
         Logger.i(TAG, "isClickableConversation ： $result, 当前tab($actionText)")
         return result
     }
@@ -408,7 +409,7 @@ class AccessibilityManager(string: String) : HandlerThread(string) {
         return result
     }
 
-    private fun isRedPacketNode(messageList: List<AccessibilityNodeInfo>, currentIndex: Int, flag: String = Constants.TEXT_WX_PACKET): Boolean {
+    private fun isRedPacketNode(messageList: List<AccessibilityNodeInfo>, currentIndex: Int, flag: String = VersionManager.TEXT_WX_PACKET): Boolean {
         if (messageList.isEmpty() || messageList.size <= currentIndex) {
             return false
         }
@@ -429,9 +430,9 @@ class AccessibilityManager(string: String) : HandlerThread(string) {
             return false
         }
         var result = false
-        val dialogList = nodeInfo.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_LIST_ITEM)               //会话item
-        val messageTextList = nodeInfo.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_LIST_MESSAGE_TEXT)  //会话内容
-        val TitleList = nodeInfo.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_LIST_TITLE_TEXT)          //会话名字
+        val dialogList = nodeInfo.findAccessibilityNodeInfosByViewId(VersionManager.homeChatListItemId())               //会话item
+        val messageTextList = nodeInfo.findAccessibilityNodeInfosByViewId(VersionManager.homeChatListItemMessageId())  //会话内容
+//        val TitleList = nodeInfo.findAccessibilityNodeInfosByViewId(VersionManager.homeChatListItemTextId)          //会话名字
         if (!dialogList.isEmpty()) {
             for (i in dialogList.indices.reversed()) {
 
@@ -462,18 +463,18 @@ class AccessibilityManager(string: String) : HandlerThread(string) {
             return false
         }
         var result = false
-        val avatarList = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_AVATAR)
-        val tipList = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_PACKET_TIP)
-        val messageList = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_PACKET_MESSAGE)
-        val pageTitle = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_PAGE_TITLE)
-        val packetList = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_PACKET)
-        val flagList = rootNote.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_DIALOG_PACKET_FLAG)
+        val avatarList = rootNote.findAccessibilityNodeInfosByViewId(VersionManager.chatPagerItemAvatatId())
+        val tipList = rootNote.findAccessibilityNodeInfosByViewId(VersionManager.chatPagerItemPacketTipId())
+        val messageList = rootNote.findAccessibilityNodeInfosByViewId(VersionManager.chatPagerItemPacketMessageId())
+        val pageTitle = rootNote.findAccessibilityNodeInfosByViewId(VersionManager.chatPagerTitleId())
+        val packetList = rootNote.findAccessibilityNodeInfosByViewId(VersionManager.chatPagerItemPacketId())
+        val flagList = rootNote.findAccessibilityNodeInfosByViewId(VersionManager.chatPagerItemPacketFlagId())
 
         if (!packetList.isEmpty()) {
             for (i in packetList.indices.reversed()) {
 
                 //过滤不是红包的
-                if (!isRedPacketNode(flagList, i, Constants.TEXT_WX_PACKET_2)) {
+                if (!isRedPacketNode(flagList, i, VersionManager.TEXT_WX_PACKET_WITHOUT_SPL)) {
                     continue
                 }
 
@@ -510,7 +511,7 @@ class AccessibilityManager(string: String) : HandlerThread(string) {
 
         //如果当前节点存在红包，则遍历寻找"开"
         var result = false
-        val packetList = rootNode!!.findAccessibilityNodeInfosByViewId(Constants.ID_WID_CHAT_PACKET_DIALOG_BUTTON)
+        val packetList = rootNode!!.findAccessibilityNodeInfosByViewId(VersionManager.packetDialogOpenId())
         if (!packetList.isEmpty()) {
             val item = packetList[0]
             if (item.isClickable) {

@@ -39,7 +39,7 @@ class Config private constructor() {
          * 应用启动时需要初始化
          */
         fun init() {
-            userWxName = RpApplication.SP().getString(KEY_USER_WX_NAME, userWxName)
+            userWxName = RpApplication.SP().getString(KEY_USER_WX_NAME, userWxName)!!
 
             openGetSelfPacket = RpApplication.SP().getBoolean(KEY_OPEN_GET_SELF_PACKET, openGetSelfPacket)
 
@@ -59,7 +59,7 @@ class Config private constructor() {
         fun onSave() {
             var tagsString = StringBuilder()
             var isFirst = true
-            filterTags?.map {
+            filterTags.map {
                 if (isFirst) {
                     tagsString.append(it)
                     isFirst = false

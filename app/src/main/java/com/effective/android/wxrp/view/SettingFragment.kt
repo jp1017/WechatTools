@@ -16,7 +16,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.cunoraz.tagview.Tag
 import com.cunoraz.tagview.TagView
-import com.effective.android.wxrp.Constants
+import com.effective.android.wxrp.version.VersionManager
 
 import com.effective.android.wxrp.R
 import com.effective.android.wxrp.store.Config
@@ -74,16 +74,16 @@ class SettingFragment : Fragment() {
 
 
     private fun initListener() {
-        notification_select.setOnClickListener {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                startActivity(intent)
-            } else {
-                ToolUtil.toast(context!!, "当前安卓系统版本过低，请手动设置本应用的通知读取权限")
-                notification_select.isSelected = ToolUtil.isServiceRunning(context!!, Constants.PACKAGE_SELF_APPLICATION + "." + Constants.CLASS_NOTIFICATION)
-            }
-        }
+//        notification_select.setOnClickListener {
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+//                val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+//                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//                startActivity(intent)
+//            } else {
+//                ToolUtil.toast(context!!, "当前安卓系统版本过低，请手动设置本应用的通知读取权限")
+//                notification_select.isSelected = ToolUtil.isServiceRunning(context!!, VersionManager.PACKAGE_SELF_APPLICATION + "." + VersionManager.CLASS_NOTIFICATION)
+//            }
+//        }
 
         getSelf_select.setOnClickListener {
             val selectStatus = getSelf_select.isSelected
@@ -94,8 +94,10 @@ class SettingFragment : Fragment() {
         filter_select.setOnClickListener {
             val filterStatus = filter_select.isSelected
             filer_tag_container.visibility = if (!filterStatus) View.VISIBLE else View.GONE
-            if (filter_select.isSelected) {
-                tag_container.addTags(currentTag)
+            if (!filterStatus) {
+                filer_tag_container.post {
+                    tag_container.addTags(currentTag)
+                }
             }
             Config.openFilterTag(!filterStatus)
             filter_select.isSelected = !filterStatus
@@ -154,7 +156,7 @@ class SettingFragment : Fragment() {
 
         delay_commit.setOnClickListener {
             if (delay_commit.text == context!!.getString(R.string.delay_edit)) {
-                val time = currentDelayNum!!.toInt()
+                val time = currentDelayNum.toInt()
                 Config.setDelayTime(time)
                 Logger.i(TAG, "提交当前修改，是否是固定延迟 ：$isFixationDelay delayTime : $time")
                 ToolUtil.toast(context!!, "已更新延迟时间")
@@ -197,7 +199,7 @@ class SettingFragment : Fragment() {
 
 
     private fun initState() {
-        notification_select.isSelected = ToolUtil.isServiceRunning(context!!, Constants.PACKAGE_SELF_APPLICATION + "." + Constants.CLASS_NOTIFICATION)
+//        notification_select.isSelected = ToolUtil.isServiceRunning(context!!, VersionManager.PACKAGE_SELF_APPLICATION + "." + VersionManager.CLASS_NOTIFICATION)
         getSelf_select.isSelected = Config.isOpenGetSelfPacket()
         filter_select.isSelected = Config.isOpenFilterTag()
         filer_tag_container.visibility = if (filter_select.isSelected) View.VISIBLE else View.GONE
